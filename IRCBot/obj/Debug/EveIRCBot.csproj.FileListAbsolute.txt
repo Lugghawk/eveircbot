@@ -5,3 +5,5 @@ E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\IRCBot.pdb
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\libeveapi.dll
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\obj\Debug\IRCBot.exe
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\obj\Debug\IRCBot.pdb
+E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\System.Data.SQLite.dll
+E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\System.Data.SQLite.pdb

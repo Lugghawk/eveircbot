@@ -70,7 +70,9 @@
     </Reference>
     <Reference Include="System.Data.SQLite, Version=1.0.65.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
+      <Private>True</Private>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -82,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionThread.cs" />
+    <Compile Include="Database.cs" />
     <Compile Include="IrcBot.cs" />
     <Compile Include="PingSender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -89,15 +92,6 @@
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Include="_apo15_sqlite3_v1DataSet.cs">
-      <DependentUpon>_apo15_sqlite3_v1DataSet.xsd</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="_apo15_sqlite3_v1DataSet.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>_apo15_sqlite3_v1DataSet.xsd</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -107,17 +101,6 @@
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <None Include="_apo15_sqlite3_v1DataSet.xsc">
-      <DependentUpon>_apo15_sqlite3_v1DataSet.xsd</DependentUpon>
-    </None>
-    <None Include="_apo15_sqlite3_v1DataSet.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <SubType>Designer</SubType>
-      <LastGenOutput>_apo15_sqlite3_v1DataSet.Designer.cs</LastGenOutput>
-    </None>
-    <None Include="_apo15_sqlite3_v1DataSet.xss">
-      <DependentUpon>_apo15_sqlite3_v1DataSet.xsd</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>

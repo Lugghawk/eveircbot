@@ -6,10 +6,13 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
+using System.Data;
+using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using libeveapi;
 using System.Data.SQLite;
 using System.Configuration;
+using SQLiteDatabase;
 
 namespace IRCBot {
     class IrcBot {
@@ -35,6 +38,9 @@ namespace IRCBot {
         public static StreamWriter writer;
         static TcpClient irc;
 
+        //Get SQL stuff
+        SQLiteDB db = new SQLiteDB(ConfigurationManager.AppSettings["irc.datasource.path"]);
+        
 
         public class User {
             public string userName;
@@ -428,7 +434,7 @@ namespace IRCBot {
         //Print a list of characters from an account
         //Return a list of character ID's from account
         //Uses libeveapi
-        //Says to user
+        //Says to channel
         private static int[] PrintCharacterList(User user) {
             CharacterList eveChar = EveApi.GetAccountCharacters(user.userID, user.apiKey);
 
@@ -457,6 +463,5 @@ namespace IRCBot {
 
         }
     }
-
-
 }
+
