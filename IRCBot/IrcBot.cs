@@ -9,16 +9,17 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using libeveapi;
 using System.Data.SQLite;
+using System.Configuration;
 
 namespace IRCBot {
     class IrcBot {
 
-        public static string SERVER = "irc.freenode.net";
-        private static int PORT = 6667;
-        private static string USER = "USER smthbot 8 * : i do shit";
-        private static string NICK = "smthbot";
-        private static string CHANNEL = "#hoggit.eve";
-        private static int MAX_NO_OF_CHARS = 3;
+        private static string SERVER = ConfigurationManager.AppSettings["irc.server"];
+        private static int PORT = Convert.ToInt32(ConfigurationManager.AppSettings["irc.port"]);
+        private static string NICK = ConfigurationManager.AppSettings["irc.nick"];
+        private static string USER = String.Format("USER {0} 8 * : Eve Api Bot.",NICK);
+        private static string CHANNEL = ConfigurationManager.AppSettings["irc.channel"];
+        private static int MAX_NO_OF_CHARS = 10;
 
         //global input queue from IRC
         public static Queue<string> inputQueue = new Queue<string>();
@@ -70,6 +71,7 @@ namespace IRCBot {
                 writer.AutoFlush = true;
 
                 PingSender ping = new PingSender();
+                ping.setServer(SERVER);
                 ping.start();
 
                 ActionThread actionThread = new ActionThread();
@@ -223,9 +225,9 @@ namespace IRCBot {
             ServerStatus status = EveApi.GetServerStatus();
 
             if (status.ServerOpen) {
-                writeToIRC("PRIVMSG {0} Tranquility is online",CHANNEL);
+                writeToIRC("PRIVMSG {0} : Tranquility is online",CHANNEL);
             } else {
-                writeToIRC("PRIVMSG {0} Tranquility is DOWN sukka",CHANNEL);
+                writeToIRC("PRIVMSG {0} : Tranquility is DOWN sukka",CHANNEL);
             }
         }
 
@@ -401,7 +403,7 @@ namespace IRCBot {
                 writeToIRC("PRIVMSG {0} {1} is currently training {2} to level {3} which finishes in {4}",
                                  CHANNEL, character.Name, skillInTrain.TrainingTypeId, skillInTrain.TrainingEndTime);
             } else {
-                writeToIRC("PRIVMSG {0} {1} Isn't currently training anything", CHANNEL, character.Name);
+                writeToIRC("PRIVMSG {0} : {1} Isn't currently training anything", CHANNEL, character.Name);
             }
         }
 
@@ -412,7 +414,7 @@ namespace IRCBot {
             CharacterSheet character = EveApi.GetCharacterSheet(user.userID, user.defaultChar, user.apiKey);
 
             //writeToIRC("NOTICE {0} {1} has {2} isk", CHANNEL, character.Name, (string.Format("{2:n}",character.Balance.ToString())) );
-            writeToIRC("NOTICE {0} {1} has {2} isk", CHANNEL, character.Name, character.Balance.ToString() );
+            writeToIRC("NOTICE {0} : {1} has {2} isk", CHANNEL, character.Name, character.Balance.ToString() );
         }
 
         //Print the current character balance. Use separate charID.
@@ -421,7 +423,7 @@ namespace IRCBot {
         private static void PrintAccountBalance(User user, int characterID) {
             CharacterSheet character = EveApi.GetCharacterSheet(user.userID, characterID, user.apiKey);
             
-            writeToIRC("NOTICE {0} {1} has {2} isk", CHANNEL,character.Name,string.Format("{2:n}",character.Balance.ToString()));
+            writeToIRC("NOTICE {0} : {1} has {2} isk", CHANNEL,character.Name,string.Format("{2:n}",character.Balance.ToString()));
         }
 
         //Print a list of characters from an account

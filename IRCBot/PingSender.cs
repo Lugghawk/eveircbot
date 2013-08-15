@@ -9,7 +9,13 @@ namespace IRCBot
     class PingSender
     {
         static string PING = "PING :";
+        private String server;
         private Thread pingSender;
+
+        public void setServer(String server)
+        {
+            this.server = server;
+        }
 
         public PingSender()
         {
@@ -25,7 +31,7 @@ namespace IRCBot
         {
             while (true)
             {
-                IrcBot.writer.WriteLine(PING + IrcBot.SERVER);
+                IrcBot.writer.WriteLine(PING + this.server);
                 IrcBot.writer.Flush();
                 Thread.Sleep(15000);
             }
