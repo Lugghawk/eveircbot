@@ -251,7 +251,7 @@ namespace IRCBot {
                 }
 
             } else {
-                writeToIRC("NOTICE {0} Your nick doesn't exist, sorry bra", (string)input[1]);
+                writeToIRC("NOTICE {0} : Your nick doesn't exist, sorry bra", (string)input[1]);
             }
         }
 
@@ -277,7 +277,7 @@ namespace IRCBot {
                 }
 
             } else {
-                writeToIRC("NOTICE {0} Your nick doesn't exist, sorry bra",(string)input[1]);
+                writeToIRC("NOTICE {0} : Your nick doesn't exist, sorry bra",(string)input[1]);
             }
         }
 
@@ -300,8 +300,8 @@ namespace IRCBot {
             }
 
             //Tell the user they've been added and ask for a default character
-            writeToIRC("NOTICE {0} New User Added!",newUser.userName);
-            writeToIRC("NOTICE {0} Please select a default character: ", newUser.userName);
+            writeToIRC("NOTICE {0} : New User Added!",newUser.userName);
+            writeToIRC("NOTICE {0} : Please select a default character: ", newUser.userName);
 
             int[] eveCharIDs = new int[MAX_NO_OF_CHARS];
 
@@ -336,7 +336,7 @@ namespace IRCBot {
                     if (choiceMatch.Value.Length != 0) {
                          choice = choiceMatch.Value.Substring(2, 1);
                     } else {
-                        writeToIRC("NOTICE {0} You must enter a valid choice", newUser.userName);
+                        writeToIRC("NOTICE {0} : You must enter a valid choice", newUser.userName);
 
                         //Remove bad input
                         inputQueue.Dequeue();
@@ -352,7 +352,7 @@ namespace IRCBot {
             defaultChar = eveCharIDs[defaultChar - 1];
             newUser.defaultChar = defaultChar;
 
-            writeToIRC("NOTICE {0} Done!",newUser.userName);
+            writeToIRC("NOTICE {0} : Done!",newUser.userName);
         }
 
         //Check to see if input contains requested character
@@ -380,12 +380,12 @@ namespace IRCBot {
             SkillInTraining skillInTrain = EveApi.GetSkillInTraining(user.userID, user.defaultChar, user.apiKey);
 
             if (skillInTrain.SkillCurrentlyInTraining) {
-                writeToIRC("PRIVMSG {0} {1} is currently training {2} to level {3} which finishes in {4}",
+                writeToIRC("PRIVMSG {0} : {1} is currently training {2} to level {3} which finishes in {4}",
                                  CHANNEL, character.Name, skillInTrain.TrainingTypeId,skillInTrain.TrainingToLevel, skillInTrain.TrainingEndTime);
 
                 
             } else {
-                writeToIRC("PRIVMSG {0} {1} Isn't currently training anything",CHANNEL,character.Name);
+                writeToIRC("PRIVMSG {0} : {1} Isn't currently training anything",CHANNEL,character.Name);
             }
         }
 
@@ -400,7 +400,7 @@ namespace IRCBot {
                 //writeToIRC(false, CHANNEL, character.Name, "is currently training", skillInTrain.TrainingTypeId.ToString(), "to level",
                 //    skillInTrain.TrainingToLevel.ToString(), "which finishes on", skillInTrain.TrainingEndTime.ToString());
 
-                writeToIRC("PRIVMSG {0} {1} is currently training {2} to level {3} which finishes in {4}",
+                writeToIRC("PRIVMSG {0} : {1} is currently training {2} to level {3} which finishes in {4}",
                                  CHANNEL, character.Name, skillInTrain.TrainingTypeId, skillInTrain.TrainingEndTime);
             } else {
                 writeToIRC("PRIVMSG {0} : {1} Isn't currently training anything", CHANNEL, character.Name);
@@ -444,7 +444,6 @@ namespace IRCBot {
             }
             return charIDList;
         }
-
 
         public static void writeToIRC(string format, params object[] stringsToWrite) {
             
