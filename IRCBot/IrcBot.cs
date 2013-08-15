@@ -251,7 +251,7 @@ namespace IRCBot {
                 }
 
             } else {
-                writeToIRC("NOTICE {0} : Your nick doesn't exist, sorry bra", (string)input[1]);
+                writeToIRC("PRIVMSG {0} : Your nick doesn't exist, sorry {1}", CHANNEL , (string)input[1]);
             }
         }
 
@@ -277,7 +277,7 @@ namespace IRCBot {
                 }
 
             } else {
-                writeToIRC("NOTICE {0} : Your nick doesn't exist, sorry bra",(string)input[1]);
+                writeToIRC("PRIVMSG {0} : Your nick doesn't exist, sorry {1}", CHANNEL, (string)input[1]);
             }
         }
 
@@ -296,12 +296,12 @@ namespace IRCBot {
                 //If user doesn't exist, add him to user dict.
                 nickDict.Add(newUser.userName, newUser);
             } else {
-                writeToIRC("NOTICE {0} User already exists", newUser.userName);
+                writeToIRC("PRIVMSG {0} : User ({1}) already exists", CHANNEL, newUser.userName);
             }
 
             //Tell the user they've been added and ask for a default character
-            writeToIRC("NOTICE {0} : New User Added!",newUser.userName);
-            writeToIRC("NOTICE {0} : Please select a default character: ", newUser.userName);
+            writeToIRC("PRIVMSG {0} : New User ({1}) Added!", CHANNEL, newUser.userName);
+            writeToIRC("PRIVMSG {0} : Please select a default character: ", CHANNEL);
 
             int[] eveCharIDs = new int[MAX_NO_OF_CHARS];
 
@@ -336,7 +336,7 @@ namespace IRCBot {
                     if (choiceMatch.Value.Length != 0) {
                          choice = choiceMatch.Value.Substring(2, 1);
                     } else {
-                        writeToIRC("NOTICE {0} : You must enter a valid choice", newUser.userName);
+                        writeToIRC("PRIVMSG {0} : You must enter a valid choice", CHANNEL);
 
                         //Remove bad input
                         inputQueue.Dequeue();
@@ -352,7 +352,7 @@ namespace IRCBot {
             defaultChar = eveCharIDs[defaultChar - 1];
             newUser.defaultChar = defaultChar;
 
-            writeToIRC("NOTICE {0} : Done!",newUser.userName);
+            writeToIRC("PRIVMSG {0} : Done!", CHANNEL);
         }
 
         //Check to see if input contains requested character
@@ -380,7 +380,7 @@ namespace IRCBot {
             SkillInTraining skillInTrain = EveApi.GetSkillInTraining(user.userID, user.defaultChar, user.apiKey);
 
             if (skillInTrain.SkillCurrentlyInTraining) {
-                writeToIRC("PRIVMSG {0} : {1} is currently training {2} to level {3} which finishes in {4}",
+                writeToIRC("PRIVMSG {0} : {1} is currently training {2} to level {3} which finishes at {4}",
                                  CHANNEL, character.Name, skillInTrain.TrainingTypeId,skillInTrain.TrainingToLevel, skillInTrain.TrainingEndTime);
 
                 
@@ -400,7 +400,7 @@ namespace IRCBot {
                 //writeToIRC(false, CHANNEL, character.Name, "is currently training", skillInTrain.TrainingTypeId.ToString(), "to level",
                 //    skillInTrain.TrainingToLevel.ToString(), "which finishes on", skillInTrain.TrainingEndTime.ToString());
 
-                writeToIRC("PRIVMSG {0} : {1} is currently training {2} to level {3} which finishes in {4}",
+                writeToIRC("PRIVMSG {0} : {1} is currently training {2} to level {3} which finishes at {4}",
                                  CHANNEL, character.Name, skillInTrain.TrainingTypeId, skillInTrain.TrainingEndTime);
             } else {
                 writeToIRC("PRIVMSG {0} : {1} Isn't currently training anything", CHANNEL, character.Name);
@@ -413,8 +413,7 @@ namespace IRCBot {
         private static void PrintAccountBalance(User user) {
             CharacterSheet character = EveApi.GetCharacterSheet(user.userID, user.defaultChar, user.apiKey);
 
-            //writeToIRC("NOTICE {0} {1} has {2} isk", CHANNEL, character.Name, (string.Format("{2:n}",character.Balance.ToString())) );
-            writeToIRC("NOTICE {0} : {1} has {2} isk", CHANNEL, character.Name, character.Balance.ToString() );
+            writeToIRC("PRIVMSG {0} : {1} has {2} isk", CHANNEL, character.Name, character.Balance.ToString() );
         }
 
         //Print the current character balance. Use separate charID.
@@ -423,7 +422,7 @@ namespace IRCBot {
         private static void PrintAccountBalance(User user, int characterID) {
             CharacterSheet character = EveApi.GetCharacterSheet(user.userID, characterID, user.apiKey);
             
-            writeToIRC("NOTICE {0} : {1} has {2} isk", CHANNEL,character.Name,string.Format("{2:n}",character.Balance.ToString()));
+            writeToIRC("PRIVMSG {0} : {1} has {2} isk", CHANNEL,character.Name,string.Format("{2:n}",character.Balance.ToString()));
         }
 
         //Print a list of characters from an account
@@ -437,7 +436,7 @@ namespace IRCBot {
             int counter = 1;
             foreach (CharacterList.CharacterListItem character in eveChar.CharacterListItems){
 
-                writeToIRC("NOTICE {0} : {1} {2}", user.userName, counter.ToString(), character.Name);
+                writeToIRC("PRIVMSG {0} : {1} {2}", CHANNEL, counter.ToString(), character.Name);
 
                 charIDList[counter - 1] = character.CharacterId;
                 counter++;
