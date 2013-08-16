@@ -10,13 +10,14 @@ using System.Data;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using libeveapi;
-using System.Data.SQLite;
 using System.Configuration;
-using SQLiteDatabase;
+using Ircbot.Database;
+using NHibernate;
+using NHibernate.Cfg;
+using NHibernate.Tool.hbm2ddl;
 
 namespace IRCBot {
     class IrcBot {
-
         private static string SERVER = ConfigurationManager.AppSettings["irc.server"];
         private static int PORT = Convert.ToInt32(ConfigurationManager.AppSettings["irc.port"]);
         private static string NICK = ConfigurationManager.AppSettings["irc.nick"];
@@ -38,35 +39,24 @@ namespace IRCBot {
         public static StreamWriter writer;
         static TcpClient irc;
 
-        //Get SQL stuff
-        SQLiteDB db = new SQLiteDB(ConfigurationManager.AppSettings["irc.datasource.path"]);
-        
-
-        public class User {
-            public string userName;
-            public string apiKey;
-            public int userID;
-            public int defaultChar;
-
-            public User(string inputUserName, string inputApiKey, int inputUserID, int inputDefaultChar) {
-                userName = inputUserName;
-                apiKey = inputApiKey;
-                userID = inputUserID;
-                defaultChar = inputDefaultChar;
-            }
-
-            public User(string inputUserName, string inputApiKey, int inputUserID) {
-                userName = inputUserName;
-                apiKey = inputApiKey;
-                userID = inputUserID;
-            }
-        }
+        private static ISession mySession;
 
         static void Main(string[] args) {
 
-
+            NHibernate.Cfg.Configuration config = new NHibernate.Cfg.Configuration();
+            config.Configure();
+            config.AddAssembly(typeof(User).Assembly);
+            ISessionFactory sessionFactory = config.BuildSessionFactory();
+            //var schema = new SchemaExport(config);
+            //schema.Create(true, true);
+            mySession = sessionFactory.OpenSession();
+            List<User> savedUsers = (List<User>)mySession.CreateCriteria<User>().List<User>();
+            users.AddRange(savedUsers);
+            foreach (User user in users)
+            {
+                nickDict.Add(user.userName, user);
+            }
             string inputLine;
-
             try {
                 irc = new TcpClient(SERVER, PORT);
                 stream = irc.GetStream();
@@ -92,7 +82,7 @@ namespace IRCBot {
                 writeToIRC("JOIN {0}", CHANNEL);
                 //writer.Flush();
 
-                writeToIRC("privmsg {0} HELLO I AM HERE", CHANNEL);
+                writeToIRC("privmsg {0} : HELLO I AM HERE", CHANNEL);
 
                 ArrayList results = new ArrayList();
 
@@ -101,13 +91,8 @@ namespace IRCBot {
                     while ((inputLine = reader.ReadLine()) != null)
                     {
                         Console.WriteLine(inputLine);
-
                         inputQueue.Enqueue(inputLine);
                     }
-
-                    //writer.Close();
-                    //reader.Close();
-                    //irc.Close();
                 }
             }
             catch (Exception e) {
@@ -290,16 +275,17 @@ namespace IRCBot {
         //Create a new user, add key to nickDict, add User to users
         //Says to user
         private static void CreateNewUserRequest(ArrayList input) {
-
+            String apiKeyId = (String)input[2];
+            int apiUserId = int.Parse((string)input[3]);
             //Potential new instance of User
-            User newUser = new User((string)input[1],
-                                    (string)input[2],
-                                    int.Parse((string)input[3]));
+            User newUser = new User((string)input[1]);
+            UserApi api = new UserApi(apiUserId, apiKeyId);
+            newUser.addApi(api);
 
             //New index reference for searching
             //Test is user already exists
             if (!nickDict.ContainsKey((string)input[1])) {
-                //If user doesn't exist, add him to user dict.
+                //If user doesn't exist, add him to user dict.x
                 nickDict.Add(newUser.userName, newUser);
             } else {
                 writeToIRC("PRIVMSG {0} : User ({1}) already exists", CHANNEL, newUser.userName);
@@ -357,7 +343,9 @@ namespace IRCBot {
             //Find character number and assign it to user class
             defaultChar = eveCharIDs[defaultChar - 1];
             newUser.defaultChar = defaultChar;
-
+            ITransaction trans = mySession.BeginTransaction();
+            mySession.Save(newUser);
+            trans.Commit();
             writeToIRC("PRIVMSG {0} : Done!", CHANNEL);
         }
 
@@ -365,14 +353,14 @@ namespace IRCBot {
         //Return characterID of any that do.
         //Uses libeveapi
         private static int[] CheckCharacterExistence(User user, string input) {
-            CharacterList eveChar = EveApi.GetAccountCharacters(user.userID, user.apiKey);
+            UserApi api = user.apis.ElementAt(0);
+            CharacterList eveChar = EveApi.GetAccountCharacters(api.apiUserId, api.apiKeyId);
             int counter = 0;
             int[] charIDs = new int[MAX_NO_OF_CHARS];
 
             foreach (CharacterList.CharacterListItem character in eveChar.CharacterListItems) {
                 if (input.Contains(character.Name)) {
-                    charIDs[counter] = character.CharacterId;
-                    counter++;
+                    charIDs[counter++] = character.CharacterId;
                 }
             }
             return charIDs;
@@ -382,8 +370,9 @@ namespace IRCBot {
         //Uses libeveapi
         //Says to channel
         private static void PrintSkillTraining(User user) {
-            CharacterSheet character = EveApi.GetCharacterSheet(user.userID, user.defaultChar, user.apiKey);
-            SkillInTraining skillInTrain = EveApi.GetSkillInTraining(user.userID, user.defaultChar, user.apiKey);
+            UserApi api = user.apis.ElementAt(0);
+            CharacterSheet character = EveApi.GetCharacterSheet(api.apiUserId, user.defaultChar, api.apiKeyId);
+            SkillInTraining skillInTrain = EveApi.GetSkillInTraining(api.apiUserId, user.defaultChar, api.apiKeyId);
 
             if (skillInTrain.SkillCurrentlyInTraining) {
                 writeToIRC("PRIVMSG {0} : {1} is currently training {2} to level {3} which finishes at {4}",
@@ -399,8 +388,9 @@ namespace IRCBot {
         //Uses libeveapi
         //Says to channel
         private static void PrintSkillTraining(User user, int characterID) {
-            CharacterSheet character = EveApi.GetCharacterSheet(user.userID, characterID, user.apiKey);
-            SkillInTraining skillInTrain = EveApi.GetSkillInTraining(user.userID, characterID, user.apiKey);
+            UserApi api = user.apis.ElementAt(0);
+            CharacterSheet character = EveApi.GetCharacterSheet(api.apiUserId, characterID, api.apiKeyId);
+            SkillInTraining skillInTrain = EveApi.GetSkillInTraining(api.apiUserId, characterID, api.apiKeyId);
 
             if (skillInTrain.SkillCurrentlyInTraining) {
                 //writeToIRC(false, CHANNEL, character.Name, "is currently training", skillInTrain.TrainingTypeId.ToString(), "to level",
@@ -417,18 +407,20 @@ namespace IRCBot {
         //Uses libeveapi
         //Says to channel
         private static void PrintAccountBalance(User user) {
-            CharacterSheet character = EveApi.GetCharacterSheet(user.userID, user.defaultChar, user.apiKey);
+            UserApi api = user.apis.ElementAt(0);
+            CharacterSheet character = EveApi.GetCharacterSheet(api.apiUserId, user.defaultChar, api.apiKeyId);
 
-            writeToIRC("PRIVMSG {0} : {1} has {2} isk", CHANNEL, character.Name, character.Balance.ToString() );
+            writeToIRC("PRIVMSG {0} : {1} has {2} isk", CHANNEL, character.Name, character.Balance.ToString("N") );
         }
 
         //Print the current character balance. Use separate charID.
         //Uses libeveapi
         //Says to channel
         private static void PrintAccountBalance(User user, int characterID) {
-            CharacterSheet character = EveApi.GetCharacterSheet(user.userID, characterID, user.apiKey);
+            UserApi api = user.apis.ElementAt(0);
+            CharacterSheet character = EveApi.GetCharacterSheet(api.apiUserId, characterID, api.apiKeyId);
             
-            writeToIRC("PRIVMSG {0} : {1} has {2} isk", CHANNEL,character.Name,string.Format("{2:n}",character.Balance.ToString()));
+            writeToIRC("PRIVMSG {0} : {1} has {2} isk", CHANNEL,character.Name,string.Format("{2:n}",character.Balance.ToString("N")));
         }
 
         //Print a list of characters from an account
@@ -436,7 +428,8 @@ namespace IRCBot {
         //Uses libeveapi
         //Says to channel
         private static int[] PrintCharacterList(User user) {
-            CharacterList eveChar = EveApi.GetAccountCharacters(user.userID, user.apiKey);
+            UserApi api = user.apis.ElementAt(0);
+            CharacterList eveChar = EveApi.GetAccountCharacters(api.apiUserId, api.apiKeyId);
 
             int [] charIDList = new int[MAX_NO_OF_CHARS];
             int counter = 1;

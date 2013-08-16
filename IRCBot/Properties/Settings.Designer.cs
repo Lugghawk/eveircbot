@@ -26,10 +26,11 @@ namespace IRCBot.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("data source=C:\\Users\\George\\Desktop\\IrcBot\\apo15-sqlite3-v1.db")]
-        public string apo15_sqlite3_v1ConnectionString {
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=(LocalDB)\\v11.0;AttachDbFilename=|DataDirectory|\\IrcBotDatabase.mdf;I" +
+            "ntegrated Security=True;Connect Timeout=30")]
+        public string IrcBotDatabaseConnectionString {
             get {
-                return ((string)(this["apo15_sqlite3_v1ConnectionString"]));
+                return ((string)(this["IrcBotDatabaseConnectionString"]));
             }
         }
     }
