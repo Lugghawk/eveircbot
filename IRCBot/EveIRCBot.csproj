@@ -63,9 +63,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\Iesi.Collections.dll</HintPath>
     </Reference>
-    <Reference Include="libeveapi, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="libeveapi, Version=1.1.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\libeveapi.dll</HintPath>
+      <HintPath>lib\libeveapi.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate">
       <HintPath>lib\NHibernate.dll</HintPath>
@@ -160,6 +160,15 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="IrcBotDatabase.mdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="IrcBotDatabase_log.ldf">
+      <DependentUpon>IrcBotDatabase.mdf</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

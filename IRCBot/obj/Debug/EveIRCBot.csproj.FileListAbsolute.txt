@@ -14,5 +14,6 @@ E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\Iesi.Collections.pdb
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\Iesi.Collections.xml
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\hibernate.cfg.xml
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\User.hbm.xml
-E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\IrcBotDatabase_log.ldf
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\IrcBotDatabase.mdf
+E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\IrcBotDatabase_log.ldf
+E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\libeveapi.dll

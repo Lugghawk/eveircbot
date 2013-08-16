@@ -29,7 +29,16 @@ namespace Ircbot.Database
             }
             api.user_id = this;
             this.apis.Add(api);
+        }
 
+        public virtual void addCharacter(Character character)
+        {
+            if (this.characters == null)
+            {
+                this.characters = new Iesi.Collections.Generic.HashedSet<Character>();
+            }
+            character.user_id = this;
+            this.characters.Add(character);
         }
     }
 
@@ -65,6 +74,15 @@ namespace Ircbot.Database
         public virtual User user_id { get; set; }
         public virtual string characterName { get; set; }
         public virtual int apiCharacterId { get; set; }
+
+        public Character()
+        {
+        }
+
+        public Character(string name, int charId) {
+            this.characterName = name;
+            this.apiCharacterId = charId;
+        }
 
     }
 
