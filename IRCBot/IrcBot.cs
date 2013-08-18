@@ -303,7 +303,7 @@ namespace IRCBot {
         private static void writeEveServerTime()
         {
             ServerStatus serverStatus = getServerStatus();
-            connection.privmsg(CHANNEL,String.Format("The time on Tranquility is currently {1}", serverStatus.CurrentTime));
+            connection.privmsg(CHANNEL,String.Format("The time on Tranquility is currently {0}", serverStatus.CurrentTime));
         }
 
         private static void getCharacterLocation(ArrayList input)
