@@ -11,14 +11,16 @@ namespace IRCBot
         static string PING = "PING :";
         private String server;
         private Thread pingSender;
+        private IrcConnection connection;
 
         public void setServer(String server)
         {
             this.server = server;
         }
 
-        public PingSender()
+        public PingSender(IrcConnection connection)
         {
+            this.connection = connection;
             pingSender = new Thread(new ThreadStart(this.run));
         }
 
@@ -31,8 +33,7 @@ namespace IRCBot
         {
             while (true)
             {
-                IrcBot.writer.WriteLine(PING + this.server);
-                IrcBot.writer.Flush();
+                connection.rawWrite(PING + this.server);
                 Thread.Sleep(15000);
             }
 
