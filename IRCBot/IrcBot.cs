@@ -75,15 +75,9 @@ namespace IRCBot {
                 actionThread.start();
 
                 writeToIRC(USER);
-                //writer.Flush();
-
                 writeToIRC("NICK {0}", NICK);
-                //writer.Flush();
-
                 writeToIRC("JOIN {0}", CHANNEL);
-                //writer.Flush();
-
-                writeToIRC("privmsg {0} : HELLO I AM HERE", CHANNEL);
+                writeToIRC("privmsg {0} :Reporting for duty!", CHANNEL);
 
                 ArrayList results = new ArrayList();
 
@@ -177,11 +171,16 @@ namespace IRCBot {
                     results.Add(5);
                     return results;
                 } else if (input.Contains("thanks")) {
-                    writeToIRC("PRIVMSG {0} np scrub",CHANNEL);
+                    writeToIRC("PRIVMSG {0} :np",CHANNEL);
                 }
 
-
-            }else if (input.Contains("!characters"))
+            }
+            else if (input.Contains("!server") || input.Contains("!tq"))
+            {
+                results.Add(5);
+                return results;
+            }
+            else if (input.Contains("!characters"))
             {
                 results.Add(6);
                 results.Add(nickname);
@@ -194,16 +193,22 @@ namespace IRCBot {
                 results.Add(input);
                 return results;
             }
-            else if (input.Contains("!skill") || input.Contains("!train")){
+            else if (input.Contains("!skill") || input.Contains("!train"))
+            {
                 results.Add(3);
                 results.Add(nickname);
                 results.Add(input);
                 return results;
             }
-            else if(input.Contains("!system") || input.Contains("!location"))
+            else if (input.Contains("!system") || input.Contains("!location"))
             {
                 results.Add(7);
                 results.Add(nickname);
+                return results;
+            }
+            else if (input.Contains("!time"))
+            {
+                results.Add(8);
                 return results;
             }
             return null;
@@ -242,7 +247,16 @@ namespace IRCBot {
                 case 7:
                     getCharacterLocation(results);
                     break;
+                case 8:
+                    writeEveServerTime();
+                    break;
             }
+        }
+
+        private static void writeEveServerTime()
+        {
+            ServerStatus serverStatus = getServerStatus();
+            writeToIRC("PRIVMSG {0} :The time on Tranquility is currently {1}", CHANNEL, serverStatus.CurrentTime);
         }
 
         private static void getCharacterLocation(ArrayList input)
@@ -263,7 +277,13 @@ namespace IRCBot {
         private static void WriteCharacterforUser(ArrayList input)
         {
             String nick = (String)input[1];
-            User user = getUserByNick(nick);        
+            User user = getUserByNick(nick);
+            if (user == null)
+            {
+                writeToIRC("PRIVMSG {0} :You don't have any characters.", CHANNEL);
+                return;
+            }
+
             List<Character> user_chars = (List<Character>)mySession.CreateCriteria<Character>().Add(Restrictions.Eq("user_id", user)).List<Character>();
             writeToIRC("PRIVMSG {0} :Your characters are as follows:",CHANNEL);
             foreach (Character character in user_chars)
@@ -280,11 +300,16 @@ namespace IRCBot {
             
         }
 
+        private static ServerStatus getServerStatus()
+        {
+            return EveApi.GetServerStatus();
+        }
+
         //Outputs the current status of Tranquility
         private static void TranquilityStatus() {
-            ServerStatus status = EveApi.GetServerStatus();
+            ServerStatus status = getServerStatus();
             if (status.ServerOpen) {
-                writeToIRC("PRIVMSG {0} :Tranquility is online and has {1} players logged in",CHANNEL, status.OnlinePlayers);
+                writeToIRC("PRIVMSG {0} :Tranquility is online and has {1} players logged in. Current Eve time is {2}",CHANNEL, status.OnlinePlayers, status.CurrentTime);
             } else {
                 writeToIRC("PRIVMSG {0} :Tranquility is DOWN sukka",CHANNEL);
             }

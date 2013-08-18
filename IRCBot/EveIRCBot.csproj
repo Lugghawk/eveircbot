@@ -105,6 +105,9 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Responders\Impl\EveApiResponder.cs" />
+    <Compile Include="Responders\Input.cs" />
+    <Compile Include="Responders\IResponder.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="UserData.cs" />
   </ItemGroup>
@@ -170,6 +173,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
