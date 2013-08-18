@@ -44,7 +44,9 @@ namespace IRCBot {
                     Console.WriteLine(e.ToString());
                     System.Environment.Exit(1);
                 }
-                Console.WriteLine("OUTBOUND :: " + message);
+                if (!message.StartsWith("PING")) {
+                    Console.WriteLine("OUTBOUND :: " + message);
+                }
             }
         }
 
@@ -62,7 +64,15 @@ namespace IRCBot {
 
         public string ReadLine() {
             string line = reader.ReadLine();
-            Console.WriteLine("INCOMING :: " + line);
+            string[] parts = line.Split(' ');
+            if (parts.Length > 1 && !parts[1].Equals("PONG")) {
+                IRCBot.Responders.Input parsed = IRCBot.Responders.Input.parse(line);
+                string content = line;
+                if (parsed != null) {
+                    content = parsed.toString();
+                }
+                Console.WriteLine("INCOMING :: " + content);
+            }
             if (line == null) {
                 System.Environment.Exit(1);
             }
@@ -124,7 +134,6 @@ namespace IRCBot {
                 {
                     while ((inputLine = connection.ReadLine()) != null)
                     {
-                        Console.WriteLine(inputLine);
                         inputQueue.Enqueue(inputLine);
                     }
                 }
@@ -306,7 +315,7 @@ namespace IRCBot {
             }
             UserApi api = user.apis.ElementAt(0);
             CharacterInfo charInfo = EveApi.GetCharacterInfo(api.apiUserId, user.defaultChar, api.apiKeyId);
-            connection.privmsg(CHANNEL, String.Format("{1} is currently in {2}", charInfo.name, charInfo.location));
+            connection.privmsg(CHANNEL, String.Format("{0} is currently in {1}", charInfo.name, charInfo.location));
             
         }
 
@@ -334,11 +343,11 @@ namespace IRCBot {
             {
                 if (user.defaultChar.Equals(character.apiCharacterId))
                 {
-                    connection.privmsg(CHANNEL, String.Format("{1} - {2} (Default)", character.apiCharacterId, character.characterName));
+                    connection.privmsg(CHANNEL, String.Format("{0} - {1} (Default)", character.apiCharacterId, character.characterName));
                 }
                 else
                 {
-                    connection.privmsg(CHANNEL, String.Format("PRIVMSG {0} :{1} - {2}", character.apiCharacterId, character.characterName));
+                    connection.privmsg(CHANNEL, String.Format("{0} - {1}", character.apiCharacterId, character.characterName));
                 }
             }
             
