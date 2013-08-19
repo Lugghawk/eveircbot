@@ -44,7 +44,9 @@ namespace IRCBot {
                     Console.WriteLine(e.ToString());
                     System.Environment.Exit(1);
                 }
-                Console.WriteLine("OUTBOUND :: " + message);
+                if (!message.StartsWith("PING")) {
+                    Console.WriteLine("OUTBOUND :: " + message);
+                }
             }
         }
 
@@ -62,7 +64,15 @@ namespace IRCBot {
 
         public string ReadLine() {
             string line = reader.ReadLine();
-            Console.WriteLine("INCOMING :: " + line);
+            string[] parts = line.Split(' ');
+            if (parts.Length > 1 && !parts[1].Equals("PONG")) {
+                IRCBot.Responders.Input parsed = IRCBot.Responders.Input.parse(line);
+                string content = line;
+                if (parsed != null) {
+                    content = parsed.toString();
+                }
+                Console.WriteLine("INCOMING :: " + content);
+            }
             if (line == null) {
                 System.Environment.Exit(1);
             }
@@ -127,7 +137,6 @@ namespace IRCBot {
                 {
                     while ((inputLine = connection.ReadLine()) != null)
                     {
-                        Console.WriteLine(inputLine);
                         inputQueue.Enqueue(inputLine);
                     }
                 }
