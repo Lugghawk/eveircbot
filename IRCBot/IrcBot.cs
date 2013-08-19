@@ -88,7 +88,7 @@ namespace IRCBot {
         //Dictionary for comparing nickname to user class
         public static Dictionary<string, User> nickDict = new Dictionary<string, User>();
 
-
+        public static List<SkillTree.Skill> skillList = null;
 
         private static ISession mySession;
 
@@ -102,6 +102,9 @@ namespace IRCBot {
             mySession = sessionFactory.OpenSession();
             List<User> savedUsers = (List<User>)mySession.CreateCriteria<User>().List<User>();
             users.AddRange(savedUsers);
+            
+            skillList = getSkillList();
+
             foreach (User user in users)
             {
                 nickDict.Add(user.userName, user);
@@ -136,6 +139,28 @@ namespace IRCBot {
                 string[] argv = { };
                 Main(argv);
             }
+        }
+
+        private static List<SkillTree.Skill> getSkillList()
+        {
+            SkillTree skillTree = EveApi.GetSkillTree();
+            List<SkillTree.Skill> skills = new List<SkillTree.Skill>();
+            
+            foreach (SkillTree.Skill skill in skillTree.Skills)
+            {
+                skills.Add(skill);
+            }
+            return skills;
+            
+        }
+
+        public static SkillTree.Skill getSkillById(int skillId)
+        {
+            SkillTree.Skill skill =
+                (from s in skillList
+                where s.TypeId == skillId
+                select s).Single();
+            return skill;
         }
 
 
@@ -519,7 +544,7 @@ namespace IRCBot {
 
             if (skillInTrain.SkillCurrentlyInTraining) {
                 connection.privmsg(CHANNEL, String.Format("{0} is currently training {1} to level {2} which finishes at {3}",
-                                 character.Name, skillInTrain.TrainingTypeId,skillInTrain.TrainingToLevel, skillInTrain.TrainingEndTime));
+                                 character.Name, getSkillById(skillInTrain.TrainingTypeId).TypeName, skillInTrain.TrainingToLevel, skillInTrain.TrainingEndTime));
 
                 
             } else {
@@ -537,7 +562,7 @@ namespace IRCBot {
 
             if (skillInTrain.SkillCurrentlyInTraining) {
                 connection.privmsg(CHANNEL, String.Format("{0} is currently training {1} to level {2} which finishes at {3}",
-                                 character.Name, skillInTrain.TrainingTypeId, skillInTrain.TrainingEndTime));
+                                 character.Name, getSkillById(skillInTrain.TrainingTypeId).TypeName, skillInTrain.TrainingEndTime));
             } else {
                 connection.privmsg(CHANNEL, String.Format("{0} isn't currently training anything", character.Name));
             }
