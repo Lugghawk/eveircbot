@@ -16,6 +16,8 @@ using NHibernate;
 using NHibernate.Cfg;
 using NHibernate.Tool.hbm2ddl;
 using NHibernate.Criterion;
+using IRCBot.Responders;
+using IRCBot.Responders.Impl;
 
 namespace IRCBot {
     class IrcConnection {
@@ -85,7 +87,7 @@ namespace IRCBot {
         private static int PORT = Convert.ToInt32(ConfigurationManager.AppSettings["irc.port"]);
         private static string NICK = ConfigurationManager.AppSettings["irc.nick"];
         private static string CHANNEL = ConfigurationManager.AppSettings["irc.channel"];
-        private static int MAX_NO_OF_CHARS = 10;
+        public static int MAX_NO_OF_CHARS = 10;
 
         public static IrcConnection connection = new IrcConnection(SERVER, PORT, NICK);
 
@@ -100,7 +102,8 @@ namespace IRCBot {
 
         public static List<SkillTree.Skill> skillList = null;
 
-        private static ISession mySession;
+        public static ISession mySession;
+        public static IResponder responder = new EveApiResponder();
 
         static void Main(string[] args) {
             NHibernate.Cfg.Configuration config = new NHibernate.Cfg.Configuration();
@@ -189,27 +192,33 @@ namespace IRCBot {
 
             if ((input.IndexOf("!") - 1) < 0) return null;
             nickname = input.Substring(1, input.IndexOf("!") - 1);
+
+            Input messageInput = Input.parse(input);
             
+            if (responder.willRespond(messageInput))
+            {
+                responder.respond(connection, messageInput);
+            }
             //If the input is a message and it contains the bot's name
             if (input.Contains(NICK) && input.Contains("PRIVMSG"))
             {
                 
+                ////Test for API input
+                //if (idMatch.Success &&
+                //    apiMatch.Success &&
+                //    input.Contains(apiKeyword))
+                //{
 
-                //Test for API input
-                if (idMatch.Success &&
-                    apiMatch.Success &&
-                    input.Contains(apiKeyword))
-                {
+                //    results.Add(1);
+                //    results.Add(nickname);
+                //    results.Add(apiMatch.Value);
+                //    results.Add(idMatch.Value);
+                //    return results;
 
-                    results.Add(1);
-                    results.Add(nickname);
-                    results.Add(apiMatch.Value);
-                    results.Add(idMatch.Value);
-                    return results;
-
-                //Test for isk value request
-                }
-                else if ((input.Contains("isk") ||
+                ////Test for isk value request
+                //}
+                //else 
+                if ((input.Contains("isk") ||
                           input.Contains("money") ||
                           input.Contains("isks")) &&
                           input.Contains("how much") ||
@@ -447,7 +456,7 @@ namespace IRCBot {
 
         //Create a new user, add key to nickDict, add User to users
         //Says to user
-        private static void CreateNewUserRequest(ArrayList input) {
+        public static void CreateNewUserRequest(ArrayList input) {
             String apiKeyId = (String)input[2];
             int apiUserId = int.Parse((string)input[3]);
             //Potential new instance of User
@@ -601,7 +610,7 @@ namespace IRCBot {
         //Return a list of character ID's from account
         //Uses libeveapi
         //Says to channel
-        private static int[] PrintCharacterList(User user) {
+        public static int[] PrintCharacterList(User user) {
             UserApi api = user.apis.ElementAt(0);
             CharacterList eveChar = EveApi.GetAccountCharacters(api.apiUserId, api.apiKeyId);
 

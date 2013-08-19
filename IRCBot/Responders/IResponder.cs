@@ -19,8 +19,8 @@ namespace IRCBot.Responders
         /// <summary>
         /// The method called when this Responder has been selected for use.
         /// </summary>
-        /// <param name="writer">The stream which the response will be given on. Use Streamwriter.WriteLine() to send a line to IRC.</param>
+        /// <param name="connection">The stream which the response will be given on. Use Streamwriter.WriteLine() to send a line to IRC.</param>
         /// <param name="message">The input which to respond against.</param>
-        void respond(StreamWriter writer, Input input);
+        void respond(IrcConnection connection, Input input);
     }
 }
