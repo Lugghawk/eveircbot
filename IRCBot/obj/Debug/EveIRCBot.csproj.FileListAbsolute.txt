@@ -1,5 +1,4 @@
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\IRCBot.exe.config
-E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\obj\Debug\EveIRCBot.csprojResolveAssemblyReference.cache
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\IRCBot.exe
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\IRCBot.pdb
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\obj\Debug\IRCBot.exe

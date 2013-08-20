@@ -33,4 +33,19 @@
     <property name="apiKeyId" not-null="true"/>
     <many-to-one class="User" name="user_id" lazy="false"/>
   </class>
+  <class name="InvType" table="invTypes">
+    <id name="typeID" generator="guid"/>
+    <property name="groupID" />
+    <property name="typeName"/>
+    <property name="description"/>
+    <property name="mass"/>
+    <property name="volume"/>
+    <property name="capacity"/>
+    <property name="portionSize"/>
+    <property name="raceID"/>
+    <property name="basePrice"/>
+    <property name="published"/>
+    <property name="marketGroupID"/>
+    <property name="chanceOfDuplicating"/>
+  </class>
 </hibernate-mapping>

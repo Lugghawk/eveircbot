@@ -103,9 +103,14 @@ namespace IRCBot {
         public static List<SkillTree.Skill> skillList = null;
 
         public static ISession mySession;
-        public static IResponder responder = new EveApiResponder();
+        public static IResponder eveApiResponder = new EveApiResponder();
+        public static IResponder priceResponder = new PriceCheckResponder();
+        public static List<IResponder> botResponders = new List<IResponder>();
+        
 
         static void Main(string[] args) {
+            botResponders.Add(eveApiResponder);
+            botResponders.Add(priceResponder);
             NHibernate.Cfg.Configuration config = new NHibernate.Cfg.Configuration();
             config.Configure();
             config.AddAssembly(typeof(User).Assembly);
@@ -194,10 +199,14 @@ namespace IRCBot {
             nickname = input.Substring(1, input.IndexOf("!") - 1);
 
             Input messageInput = Input.parse(input);
-            
-            if (responder.willRespond(messageInput))
+
+            foreach (IResponder botResponder in botResponders)
             {
-                responder.respond(connection, messageInput);
+                if (botResponder.willRespond(messageInput))
+                {
+                    botResponder.respond(connection, messageInput);
+                    break;
+                }
             }
             //If the input is a message and it contains the bot's name
             if (input.Contains(NICK) && input.Contains("PRIVMSG"))

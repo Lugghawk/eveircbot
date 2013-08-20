@@ -22,5 +22,6 @@ namespace IRCBot.Responders
         /// <param name="connection">The stream which the response will be given on. Use Streamwriter.WriteLine() to send a line to IRC.</param>
         /// <param name="message">The input which to respond against.</param>
         void respond(IrcConnection connection, Input input);
+
     }
 }

@@ -7,12 +7,14 @@ using libeveapi;
 using System.Text.RegularExpressions;
 using Ircbot.Database;
 using NHibernate;
+using NHibernate.Criterion;
 
 namespace IRCBot.Responders.Impl
 {
     public class EveApiResponder : IResponder
     {
         List<User> waitingOnResponse = new List<User>();
+        Dictionary<User, int[]> userCharList = new Dictionary<User, int[]>();
         bool IResponder.willRespond(Input input)
         {
             if (input == null || input.message == null)
@@ -22,7 +24,8 @@ namespace IRCBot.Responders.Impl
             return (input.message.StartsWith("!isk") || input.message.StartsWith("!time") ||
                 input.message.StartsWith("!location") || input.message.StartsWith("!characters") ||
                 input.message.StartsWith("!server") || input.message.StartsWith("!skill") ||
-                input.message.StartsWith("!api") || checkWaitingOnUser(input));
+                input.message.StartsWith("!api") ||
+                checkWaitingOnUser(input));
         }
 
         bool checkWaitingOnUser(Input input)
@@ -48,7 +51,7 @@ namespace IRCBot.Responders.Impl
                         return;
                     }else{
                         int defaultChar = Convert.ToInt32(input.message);
-                        user.defaultChar = defaultChar;
+                        user.defaultChar = userCharList[user][defaultChar - 1];
                         if (IrcBot.mySession == null)
                         {
                             writer.privmsg(input.target, "I appear to be missing my DB. Sorry! Fix me pleaaase!");
@@ -86,7 +89,7 @@ namespace IRCBot.Responders.Impl
 
                 if (!IrcBot.nickDict.ContainsKey(input.speaker)) {
                     //If user doesn't exist, add him to user dict.x
-                   IrcBot. nickDict.Add(newUser.userName, newUser);
+                   IrcBot.nickDict.Add(newUser.userName, newUser);
                 } else {
                     writer.privmsg(input.target, String.Format("User ({0}) already exists", newUser.userName));
                 }
@@ -100,8 +103,10 @@ namespace IRCBot.Responders.Impl
                 eveCharIDs = IrcBot.PrintCharacterList(newUser);
                 //Add this person to the list of people we're waiting on input from.
                 waitingOnResponse.Add(newUser);
+                userCharList.Add(newUser, eveCharIDs);
             }
 
+            
         }
 
 
