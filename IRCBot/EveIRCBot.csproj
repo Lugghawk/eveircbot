@@ -170,6 +170,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="2dbo.invTypes.data.sql" />
     <Content Include="dbo.invTypes.data.sql" />
     <Content Include="dbo.invTypes.sql" />
     <Content Include="IrcBotDatabase.mdf">

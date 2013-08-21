@@ -426,7 +426,10 @@ namespace IRCBot {
                 if (!(charIDList[0] == 0)) {
                     //Print out the character balance for each character specified
                     foreach (int character in charIDList) {
-                        PrintSkillTraining(user, character);
+                        if (character != 0)
+                        {
+                            PrintSkillTraining(user, character);
+                        }
                     }
                 } else {
                     PrintSkillTraining(user);
@@ -452,7 +455,10 @@ namespace IRCBot {
                     //Print out the character balance for each character specified
                     //If there is more than one character
                     foreach (int character in charIDList) {
-                        PrintAccountBalance(user, character);
+                        if (character != 0)
+                        {
+                            PrintAccountBalance(user, character);
+                        }
                     }
                 } else {
                     PrintAccountBalance(user);
@@ -589,7 +595,7 @@ namespace IRCBot {
 
             if (skillInTrain.SkillCurrentlyInTraining) {
                 connection.privmsg(CHANNEL, String.Format("{0} is currently training {1} to level {2} which finishes at {3}",
-                                 character.Name, getSkillById(skillInTrain.TrainingTypeId).TypeName, skillInTrain.TrainingEndTime));
+                                 character.Name, getSkillById(skillInTrain.TrainingTypeId).TypeName, skillInTrain.TrainingToLevel, skillInTrain.TrainingEndTime));
             } else {
                 connection.privmsg(CHANNEL, String.Format("{0} isn't currently training anything", character.Name));
             }
@@ -612,7 +618,7 @@ namespace IRCBot {
             UserApi api = user.apis.ElementAt(0);
             CharacterSheet character = EveApi.GetCharacterSheet(api.apiUserId, characterID, api.apiKeyId);
 
-            connection.privmsg(CHANNEL, String.Format("{0} has {1} isk", character.Name, string.Format("{2:n}", character.Balance.ToString("N"))));
+            connection.privmsg(CHANNEL, String.Format("{0} has {1} isk", character.Name, character.Balance.ToString("N")));
         }
 
         //Print a list of characters from an account

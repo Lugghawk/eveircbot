@@ -23,7 +23,18 @@ namespace IRCBot.Responders.Impl
         void IResponder.respond(IrcConnection connection, Input input)
         {
             string [] message = input.message.Split(' ');
-            string itemName = message[1];
+            //string itemName = message[1];
+            string itemName = "";
+            for (int i = 1; i < message.Length; i++)
+            {
+                itemName += message[i];
+                if (i < message.Length-1)
+                {
+                    itemName += " ";
+                }
+
+            }
+            
             InvType type = (InvType)IrcBot.mySession.CreateCriteria<InvType>().Add(Restrictions.Eq("typeName", itemName)).UniqueResult();
             if (type == null)
             {

@@ -16,3 +16,4 @@ E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\User.hbm.xml
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\IrcBotDatabase.mdf
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\IrcBotDatabase_log.ldf
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\libeveapi.dll
+E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\obj\Debug\EveIRCBot.csprojResolveAssemblyReference.cache
