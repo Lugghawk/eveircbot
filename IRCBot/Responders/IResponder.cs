@@ -25,7 +25,7 @@ namespace IRCBot.Responders
         void respond(IrcConnection connection, Input input);
 
     }
-
+    /*
     public static class ResponderLoader {
 
         public static IResponder loadCompiled(string filename, string classname) {
@@ -45,4 +45,5 @@ namespace IRCBot.Responders
         }
 
     }
+     */
 }

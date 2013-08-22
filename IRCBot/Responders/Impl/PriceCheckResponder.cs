@@ -22,6 +22,7 @@ namespace IRCBot.Responders.Impl
 
         void IResponder.respond(IrcConnection connection, Input input)
         {
+
             string [] message = input.message.Split(' ');
             //string itemName = message[1];
             string itemName = "";
@@ -34,14 +35,33 @@ namespace IRCBot.Responders.Impl
                 }
 
             }
+            if (itemName.Length < 3)
+            {
+                connection.privmsg(input.target, "Please supply at least three characters");
+            }
+            itemName += "%";//For like statement.
             
-            InvType type = (InvType)IrcBot.mySession.CreateCriteria<InvType>().Add(Restrictions.Eq("typeName", itemName)).UniqueResult();
-            if (type == null)
+            
+            List<InvType> types = (List<InvType>)IrcBot.mySession.CreateCriteria<InvType>().Add(Restrictions.InsensitiveLike("typeName", itemName)).List<InvType>();
+            if (types == null || types.Count == 0)
             {
                 connection.privmsg(input.target, "Can't find that item. Check spelling");
                 return;
             }
-            connection.privmsg(input.target, "Price of "+ type.typeName + " is " + string.Format("{0:n}",getMarketPrice(type.typeID)) + " on average.");
+            else if (types.Count > 1 && types.Count <=5)
+            {
+                string[] itemString  = new string[5];
+                for (int i=0; i < types.Count; i++){
+                    //If there is more than 1 result, concatenate them into a list and return to give an example.                 
+                    itemString[i] = types.ElementAt(i).typeName;
+                }
+                connection.privmsg(input.target,"Found multiple Results: " + string.Join(", ",itemString) +".");
+                return;
+            }else if (types.Count == 1)
+            {   
+                InvType type = types.ElementAt(0);
+                connection.privmsg(input.target, "Price of "+ type.typeName + " is " + string.Format("{0:n}",getMarketPrice(type.typeID)) + " on average.");
+            }
             
         }
 
