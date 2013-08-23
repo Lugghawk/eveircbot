@@ -15,17 +15,17 @@ namespace IRCBot.Responders.Impl
     {
         List<User> waitingOnResponse = new List<User>();
         Dictionary<User, int[]> userCharList = new Dictionary<User, int[]>();
+
         bool IResponder.willRespond(Input input)
         {
             if (input == null || input.message == null)
             {
                 return false;
             }
-            return (input.message.StartsWith("!isk") || input.message.StartsWith("!time") ||
+            return input.message.StartsWith("!api") /* || input.message.StartsWith("!isk") || input.message.StartsWith("!time") ||
                 input.message.StartsWith("!location") || input.message.StartsWith("!characters") ||
-                input.message.StartsWith("!server") || input.message.StartsWith("!skill") ||
-                input.message.StartsWith("!api") ||
-                checkWaitingOnUser(input));
+                input.message.StartsWith("!server") || input.message.Equals("!skill") */
+                || checkWaitingOnUser(input);
         }
 
         bool checkWaitingOnUser(Input input)
