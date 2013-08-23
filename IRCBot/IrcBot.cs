@@ -99,6 +99,7 @@ namespace IRCBot {
 
         //Dictionary for comparing nickname to user class
         public static Dictionary<string, User> nickDict = new Dictionary<string, User>();
+        public static Dictionary<string, int> skillIds = new Dictionary<string, int>();
 
         public static List<SkillTree.Skill> skillList = null;
 
@@ -111,6 +112,7 @@ namespace IRCBot {
         static void Main(string[] args) {
             botResponders.Add(eveApiResponder);
             botResponders.Add(priceResponder);
+            botResponders.Add(new SkillLearnedResponder());
             NHibernate.Cfg.Configuration config = new NHibernate.Cfg.Configuration();
             config.Configure();
             config.AddAssembly(typeof(User).Assembly);
@@ -122,6 +124,9 @@ namespace IRCBot {
             users.AddRange(savedUsers);
             
             skillList = getSkillList();
+            foreach (SkillTree.Skill skill in skillList) {
+                skillIds.Add(skill.TypeName.ToLower(), skill.TypeId);
+            }
 
             foreach (User user in users)
             {
@@ -184,120 +189,48 @@ namespace IRCBot {
         public static ArrayList InterpretInput(string input){
 
             ArrayList results = new ArrayList();
-            string apiKeyword = "api";
-            string nickname;
-
-            //Regex for api key
-            Regex apiRegex = new Regex("[0-9a-zA-Z]{64}");
-            Match apiMatch = apiRegex.Match(input);
-
-            //Regex for user ID
-            Regex idRegex = new Regex("[0-9]{6,}");
-            Match idMatch = idRegex.Match(input);
-
-            if ((input.IndexOf("!") - 1) < 0) return null;
-            nickname = input.Substring(1, input.IndexOf("!") - 1);
-
             Input messageInput = Input.parse(input);
-
+            if (messageInput == null) {
+                return null;
+            }
             foreach (IResponder botResponder in botResponders)
             {
                 if (botResponder.willRespond(messageInput))
                 {
                     botResponder.respond(connection, messageInput);
-                    break;
+                    return null;
                 }
             }
-            //If the input is a message and it contains the bot's name
-            if (input.Contains(NICK) && input.Contains("PRIVMSG"))
-            {
-                
-                ////Test for API input
-                //if (idMatch.Success &&
-                //    apiMatch.Success &&
-                //    input.Contains(apiKeyword))
-                //{
-
-                //    results.Add(1);
-                //    results.Add(nickname);
-                //    results.Add(apiMatch.Value);
-                //    results.Add(idMatch.Value);
-                //    return results;
-
-                ////Test for isk value request
-                //}
-                //else 
-                if ((input.Contains("isk") ||
-                          input.Contains("money") ||
-                          input.Contains("isks")) &&
-                          input.Contains("how much") ||
-                          input.Contains("how many"))
-                {
-                    results.Add(2);
-                    results.Add(nickname);
-                    results.Add(input);
-                    return results;
-
-                //Test for skill training request
-                } else if ((input.Contains("train") || 
-                            input.Contains("training")) && 
-                            input.Contains("what") &&
-                            input.Contains("i")) {
-                    results.Add(3);
-                    results.Add(nickname);
-                    results.Add(input);
-                    return results;
-
-                //Test for API status
-                } else if (input.Contains("api") &&
-                          (input.Contains("status") ||
-                          input.Contains("online"))) {
-                    results.Add(4); 
-                    return results;
-
-                //Test for tranqulity status
-                } else if (input.Contains("server") &&
-                          (input.Contains("status") ||
-                          input.Contains("online"))) {
-                    results.Add(5);
-                    return results;
-                } else if (input.Contains("thanks")) {
-                    connection.privmsg(CHANNEL, "np");
-                }
-
-            }
-            else if (input.Contains("!server") || input.Contains("!tq"))
+            string nickname = messageInput.speaker;
+            input = messageInput.message;
+            if (input.StartsWith("!server") || input.StartsWith("!tq"))
             {
                 results.Add(5);
                 return results;
-            }
-            else if (input.Contains("!characters"))
+            } else if (input.StartsWith("!characters"))
             {
                 results.Add(6);
                 results.Add(nickname);
                 return results;
-            }
-            else if (input.Contains("!isk") || input.Contains("!wallet"))
+            } else if (input.StartsWith("!isk") || input.StartsWith("!wallet"))
             {
                 results.Add(2);
                 results.Add(nickname);
                 results.Add(input);
                 return results;
             }
-            else if (input.Contains("!skill") || input.Contains("!train"))
+            else if (input.StartsWith("!skill"))
             {
                 results.Add(3);
                 results.Add(nickname);
                 results.Add(input);
                 return results;
-            }
-            else if (input.Contains("!system") || input.Contains("!location"))
+            } else if (input.StartsWith("!system") || input.StartsWith("!location"))
             {
                 results.Add(7);
                 results.Add(nickname);
                 return results;
-            }
-            else if (input.Contains("!time"))
+            } else if (input.StartsWith("!time"))
             {
                 results.Add(8);
                 return results;

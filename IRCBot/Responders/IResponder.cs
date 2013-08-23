@@ -25,10 +25,10 @@ namespace IRCBot.Responders
         void respond(IrcConnection connection, Input input);
 
     }
-    /*
+
     public static class ResponderLoader {
 
-        public static IResponder loadCompiled(string filename, string classname) {
+        static IResponder loadCompiled(string filename, string classname) {
             Assembly file = Assembly.LoadFile(filename);
             foreach (Type type in file.GetTypes()) {
                 if (type.GetInterface("IResponder") != null && type.Name.Equals(classname)) {
@@ -38,12 +38,12 @@ namespace IRCBot.Responders
             return null;
         }
 
-        public static IResponder loadSource(string filename) {
+        static IResponder loadSource(string filename) {
 
 
             return null;
         }
 
     }
-     */
+
 }
