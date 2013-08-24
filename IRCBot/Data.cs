@@ -110,4 +110,26 @@ namespace Ircbot.Database
 
     }
 
+    public class SolarSystem
+    {
+        public virtual Region region { get; set; }
+        public virtual Constellation constellation { get; set; }
+        public virtual int solarSystemID { get; set; }
+        public virtual string solarSystemName { get; set; }
+        public virtual float security { get; set; }
+    }
+    public class Constellation
+    {
+        public virtual Region region {get;set;}
+        public virtual int constellationID { get; set; }
+        public virtual string constellationName { get; set; }
+
+
+    }
+    public class Region
+    {
+        public virtual int regionID { get; set; }
+        public virtual string regionName { get; set; }
+    }
+
 }

@@ -22,7 +22,7 @@ namespace IRCBot.Responders.Impl
             {
                 return false;
             }
-            return input.message.StartsWith("!api") /* || input.message.StartsWith("!isk") || input.message.StartsWith("!time") ||
+            return input.message.StartsWith("!api") || input.message.StartsWith("!system") /* || input.message.StartsWith("!isk") || input.message.StartsWith("!time") ||
                 input.message.StartsWith("!location") || input.message.StartsWith("!characters") ||
                 input.message.StartsWith("!server") || input.message.Equals("!skill") */
                 || checkWaitingOnUser(input);
@@ -104,6 +104,38 @@ namespace IRCBot.Responders.Impl
                 //Add this person to the list of people we're waiting on input from.
                 waitingOnResponse.Add(newUser);
                 userCharList.Add(newUser, eveCharIDs);
+            }
+
+            if (input.message.StartsWith("!system"))
+            {
+                string systemName = input.message.Split(new char[] {' '}, 2)[1];
+                //(List<InvType>)IrcBot.mySession.CreateCriteria<InvType>().Add(Restrictions.InsensitiveLike("typeName", itemName+"%")).List<InvType>();
+                SolarSystem system = (SolarSystem)IrcBot.mySession.CreateCriteria<SolarSystem>().Add(Restrictions.Eq("solarSystemName", systemName)).UniqueResult();
+                if (system == null)
+                {
+                    writer.privmsg(input.target, "Cannot find system: " + systemName);
+                    return;
+                }
+                MapKills eveMapKills = EveApi.GetMapKills();
+                MapKills.MapKillsItem kills = null;
+                foreach (MapKills.MapKillsItem map in eveMapKills.MapSystemKills)
+                {
+                    if (map.SolarSystemId == system.solarSystemID)
+                    {
+                        kills = map;
+                    }
+                }
+                writer.privmsg(input.target, string.Format("System: {0}. Constellation: {1}. Region: {2}. Security Status: {3}", system.solarSystemName,system.constellation.constellationName, system.region.regionName, system.security));
+                if (kills != null)
+                {
+                    writer.privmsg(input.target, string.Format("Kills in the last hour: {0} ships, {1} pods", kills.ShipKills, kills.PodKills));
+                }
+                else
+                {
+                    writer.privmsg(input.target, "No known kills in the last hour");
+                }
+                
+                
             }
 
             

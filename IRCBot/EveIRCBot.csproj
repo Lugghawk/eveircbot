@@ -111,6 +111,7 @@
     </Compile>
     <Compile Include="Responders\Impl\PriceCheckResponder.cs" />
     <Compile Include="Responders\Impl\EveApiResponder.cs" />
+    <Compile Include="Responders\Impl\SkillLearnedResponder.cs" />
     <Compile Include="Responders\Input.cs" />
     <Compile Include="Responders\IResponder.cs" />
     <Compile Include="Settings.cs" />
@@ -170,9 +171,12 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="2dbo.invTypes.data.sql" />
+    <Content Include="dbo.eveMapSchema.sql" />
     <Content Include="dbo.invTypes.data.sql" />
     <Content Include="dbo.invTypes.sql" />
+    <Content Include="dbo.mapConstellations.data.sql" />
+    <Content Include="dbo.mapRegions.data.sql" />
+    <Content Include="dbo.mapSolarSystems.data.sql" />
     <Content Include="IrcBotDatabase.mdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
