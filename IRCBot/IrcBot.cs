@@ -509,13 +509,32 @@ namespace IRCBot {
             SkillInTraining skillInTrain = EveApi.GetSkillInTraining(api.apiUserId, user.defaultChar, api.apiKeyId);
 
             if (skillInTrain.SkillCurrentlyInTraining) {
-                connection.privmsg(CHANNEL, String.Format("{0} is currently training {1} to level {2} which finishes at {3}",
-                                 character.Name, getSkillById(skillInTrain.TrainingTypeId).TypeName, skillInTrain.TrainingToLevel, skillInTrain.TrainingEndTime));
+                DateTime dt = Convert.ToDateTime(skillInTrain.TrainingEndTime);
+                TimeSpan timeTillDone = dt - DateTime.Now;
+                string timeTillDoneString = getTimeTillDoneString(ref timeTillDone);
+                connection.privmsg(CHANNEL, String.Format("{0} is currently training {1} to level {2} which finishes at {3}. ({4})",
+                                 character.Name, getSkillById(skillInTrain.TrainingTypeId).TypeName, skillInTrain.TrainingToLevel, dt.ToString(), timeTillDoneString));
 
                 
             } else {
                 connection.privmsg(CHANNEL, String.Format("{0} Isn't currently training anything", character.Name));
             }
+        }
+
+        private static string getTimeTillDoneString(ref TimeSpan timeTillDone)
+        {
+            string timeTillDoneString = "";
+            if (timeTillDone.Days > 0)
+            {
+                timeTillDoneString += string.Format("{0} days, ", timeTillDone.Days);
+            }
+            if (timeTillDone.Days > 0 || timeTillDone.Hours > 0)
+            {
+                timeTillDoneString += string.Format("{0} hours, ", timeTillDone.Hours);
+            }
+            //Minutes should pretty much always be there.
+            timeTillDoneString += string.Format("{0} minutes.", timeTillDone.Minutes);
+            return timeTillDoneString;
         }
 
         //Print the current skill in training. Use separate charID.
@@ -527,8 +546,11 @@ namespace IRCBot {
             SkillInTraining skillInTrain = EveApi.GetSkillInTraining(api.apiUserId, characterID, api.apiKeyId);
 
             if (skillInTrain.SkillCurrentlyInTraining) {
-                connection.privmsg(CHANNEL, String.Format("{0} is currently training {1} to level {2} which finishes at {3}",
-                                 character.Name, getSkillById(skillInTrain.TrainingTypeId).TypeName, skillInTrain.TrainingToLevel, skillInTrain.TrainingEndTime));
+                DateTime dt = Convert.ToDateTime(skillInTrain.TrainingEndTime);
+                TimeSpan timeTillDone = dt - DateTime.Now;
+                string timeTillDoneString = getTimeTillDoneString(ref timeTillDone);
+                connection.privmsg(CHANNEL, String.Format("{0} is currently training {1} to level {2} which finishes at {3}. ({4})",
+                                 character.Name, getSkillById(skillInTrain.TrainingTypeId).TypeName, skillInTrain.TrainingToLevel, dt.ToString(), timeTillDoneString));
             } else {
                 connection.privmsg(CHANNEL, String.Format("{0} isn't currently training anything", character.Name));
             }
