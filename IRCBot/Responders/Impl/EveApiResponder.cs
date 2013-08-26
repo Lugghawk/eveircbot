@@ -54,7 +54,7 @@ namespace IRCBot.Responders.Impl
                         user.defaultChar = userCharList[user][defaultChar - 1];
                         if (IrcBot.mySession == null)
                         {
-                            writer.privmsg(input.target, "I appear to be missing my DB. Sorry! Fix me pleaaase!");
+                            writer.replyTo(input, "I appear to be missing my DB. Sorry! Fix me pleaaase!");
                             return;
                         }
                         ITransaction trans = IrcBot.mySession.BeginTransaction();
@@ -68,6 +68,11 @@ namespace IRCBot.Responders.Impl
             }
 
             if (input.message.StartsWith("!api")){
+                if (IrcBot.nickDict.ContainsKey(input.speaker)) {
+                    writer.replyTo(input, "That user already exists");
+                    return;
+                }
+
                 //Regex for api key
                 Regex apiRegex = new Regex("[0-9a-zA-Z]{64}");
                 Match apiMatch = apiRegex.Match(input.message);
@@ -78,7 +83,7 @@ namespace IRCBot.Responders.Impl
                 if (!(idMatch.Success || apiMatch.Success))
                 {
                     //Doesn't match api key specifications.
-                    writer.privmsg(input.target, "Doesn't look like an API to me");
+                    writer.replyTo(input, "Doesn't look like an API to me");
                 }
 
                 int apiUserId = Convert.ToInt32(idMatch.Value);
@@ -87,16 +92,12 @@ namespace IRCBot.Responders.Impl
                 UserApi api = new UserApi(apiUserId,apiKeyId);
                 newUser.addApi(api);
 
-                if (!IrcBot.nickDict.ContainsKey(input.speaker)) {
-                    //If user doesn't exist, add him to user dict.x
-                   IrcBot.nickDict.Add(newUser.userName, newUser);
-                } else {
-                    writer.privmsg(input.target, String.Format("User ({0}) already exists", newUser.userName));
-                }
+                //since user doesn't exist, add him to user dict.x
+                IrcBot.nickDict.Add(newUser.userName, newUser);
 
                 //Tell the user they've been added and ask for a default character
-                writer.privmsg(input.target, String.Format("New User ({0}) Added!", newUser.userName));
-                writer.privmsg(input.target, "Please select a default character");
+                writer.replyTo(input, String.Format("New User ({0}) Added!", newUser.userName));
+                writer.replyTo(input, "Please select a default character");
 
                 int[] eveCharIDs = new int[IrcBot.MAX_NO_OF_CHARS];
 
