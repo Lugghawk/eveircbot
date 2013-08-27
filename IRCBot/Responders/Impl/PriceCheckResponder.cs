@@ -72,7 +72,7 @@ namespace IRCBot.Responders.Impl
             string url = getEveCentralAPIURL(typeID);
             XmlDocument eveCentralResponse = new XmlDocument();
             eveCentralResponse.Load(url);
-            return double.Parse(eveCentralResponse.SelectSingleNode("/evec_api/marketstat/type/all/avg").InnerText);
+            return double.Parse(eveCentralResponse.SelectSingleNode("/evec_api/marketstat/type/sell/avg").InnerText);
         }
 
         private string getEveCentralAPIURL(int typeID)

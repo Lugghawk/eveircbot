@@ -207,7 +207,15 @@ namespace IRCBot {
             {
                 if (botResponder.willRespond(messageInput))
                 {
-                    botResponder.respond(connection, messageInput);
+                    try
+                    {
+                        botResponder.respond(connection, messageInput);
+                    }
+                    catch (WebException webex)
+                    {
+                        connection.replyTo(messageInput, "Got a 403 error trying to reach: "+webex.Response.ResponseUri);
+                        return null;
+                    }
                     return null;
                 }
             }
@@ -442,8 +450,8 @@ namespace IRCBot {
             SkillInTraining skillInTrain = EveApi.GetSkillInTraining(api.apiUserId, eveChar.apiCharacterId, api.apiKeyId);
 
             if (skillInTrain.SkillCurrentlyInTraining) {
-                DateTime dt = Convert.ToDateTime(skillInTrain.TrainingEndTime);
-                TimeSpan timeTillDone = dt - DateTime.Now;
+                DateTime dt = DateTime.SpecifyKind(Convert.ToDateTime(skillInTrain.TrainingEndTime), DateTimeKind.Utc);
+                TimeSpan timeTillDone = dt - skillInTrain.CurrentTime;
                 string timeTillDoneString = getTimeTillDoneString(ref timeTillDone);
                 connection.privmsg(CHANNEL, String.Format("{0} is currently training {1} to level {2} which finishes at {3}. ({4})",
                                  character.Name, getSkillById(skillInTrain.TrainingTypeId).TypeName, skillInTrain.TrainingToLevel, dt.ToString(), timeTillDoneString));

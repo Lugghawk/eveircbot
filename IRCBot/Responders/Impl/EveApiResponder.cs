@@ -103,15 +103,15 @@ namespace IRCBot.Responders.Impl
                 int apiUserId = Convert.ToInt32(idMatch.Value);
                 string apiKeyId = apiMatch.Value;
                 User newUser = null;
-                try
-                {
-                    newUser = (User)IrcBot.mySession.CreateCriteria<User>().Add(Restrictions.Eq("userName", input.speaker)).UniqueResult();
-                }
-                catch
+                newUser = (User)IrcBot.mySession.CreateCriteria<User>().Add(Restrictions.Eq("userName", input.speaker)).UniqueResult();
+
+                if (newUser == null)
                 {
                     newUser = new User(input.speaker);
                     IrcBot.nickDict.Add(newUser.userName, newUser);
                 }
+
+                
                 UserApi api = new UserApi(apiUserId, apiKeyId);
                 newUser.addApi(api);
 
@@ -133,7 +133,19 @@ namespace IRCBot.Responders.Impl
 
             if (input.message.StartsWith("!system"))
             {
-                string systemName = input.message.Split(new char[] { ' ' }, 2)[1];
+                string systemName = null;
+                try
+                {
+                    systemName = input.message.Split(new char[] { ' ' }, 2)[1];
+                    //If no arguments provided, this is actually out of bounds.
+                }
+                catch (IndexOutOfRangeException e)
+                {
+                    
+                    writer.replyTo(input, "I think you forgot something...");
+                    return;
+                }
+
                 //(List<InvType>)IrcBot.mySession.CreateCriteria<InvType>().Add(Restrictions.InsensitiveLike("typeName", itemName+"%")).List<InvType>();
                 SolarSystem system = (SolarSystem)IrcBot.mySession.CreateCriteria<SolarSystem>().Add(Restrictions.Eq("solarSystemName", systemName)).UniqueResult();
                 if (system == null)
