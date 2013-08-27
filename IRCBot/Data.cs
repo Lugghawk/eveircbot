@@ -75,6 +75,7 @@ namespace Ircbot.Database
         public virtual User user_id { get; set; }
         public virtual string characterName { get; set; }
         public virtual int apiCharacterId { get; set; }
+        public virtual UserApi api { get; set; }
 
         public Character()
         {

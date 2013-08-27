@@ -23,6 +23,7 @@
     </id>
     <property name="characterName" not-null="true"/>
     <property name="apiCharacterId" not-null="true"/>
+    <many-to-one class="UserApi" name="api" />
     <many-to-one class="User" name="user_id" />
   </class>
   <class name="UserApi" table="user_apis">

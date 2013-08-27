@@ -252,11 +252,6 @@ namespace IRCBot {
         public static void PerformAction(ArrayList results)
         {
             switch ((int)(results[0])) {
-                //Case 1: New User
-                case 1:
-                    CreateNewUserRequest(results);
-                    break;
-
                 //Balance request
                 case 2:
                     BalanceRequest(results);
@@ -299,7 +294,8 @@ namespace IRCBot {
             if (user == null) {
                 return;
             }
-            UserApi api = user.apis.ElementAt(0);
+            Character eveChar = mySession.CreateCriteria<Character>().Add(Restrictions.Eq("apiCharacterId", user.defaultChar)).UniqueResult<Character>();
+            UserApi api = eveChar.api;
             CharacterInfo charInfo = EveApi.GetCharacterInfo(api.apiUserId, user.defaultChar, api.apiKeyId);
             connection.privmsg(CHANNEL, String.Format("{0} is currently in {1}", charInfo.name, charInfo.location));
             
@@ -412,99 +408,25 @@ namespace IRCBot {
             }
         }
 
-        //Create a new user, add key to nickDict, add User to users
-        //Says to user
-        public static void CreateNewUserRequest(ArrayList input) {
-            String apiKeyId = (String)input[2];
-            int apiUserId = int.Parse((string)input[3]);
-            //Potential new instance of User
-            User newUser = new User((string)input[1]);
-            UserApi api = new UserApi(apiUserId, apiKeyId);
-            newUser.addApi(api);
-
-            //New index reference for searching
-            //Test is user already exists
-            if (!nickDict.ContainsKey((string)input[1])) {
-                //If user doesn't exist, add him to user dict.x
-                nickDict.Add(newUser.userName, newUser);
-            } else {
-                connection.privmsg(CHANNEL, String.Format("User ({0}) already exists", newUser.userName));
-            }
-
-            //Tell the user they've been added and ask for a default character
-            connection.privmsg(CHANNEL, String.Format("New User ({0}) Added!", newUser.userName));
-            connection.privmsg(CHANNEL, "Please select a default character");
-
-            int[] eveCharIDs = new int[MAX_NO_OF_CHARS];
-
-            //Print a list of their characters so they can choose from them
-            eveCharIDs = PrintCharacterList(newUser);
-
-            int defaultChar = 0;
-
-            string nextInput = "";
-            //Loop will continue until there is non-PONG input.
-            //This is multithreaded so its ok to loop forever :)
-            while (true) {
-                while (true) {
-                    while (inputQueue.Count == 0) { }
-
-                    //Look at the queue to see if anything's there
-                    nextInput = inputQueue.Peek();
-
-                    //If the response isn't a standard PONG return
-                    if (!nextInput.Contains("PONG")) {
-                        break;
-                        //Otherwise remove the offending PONG
-                    } else {
-                        IrcBot.inputQueue.Dequeue();
-                    }
-                }
-                //sanitize dis input
-                if (nextInput.Contains(newUser.userName)) {
-                    Match choiceMatch = Regex.Match(nextInput, " :[1-3]");
-                    string choice = null;
-
-                    if (choiceMatch.Value.Length != 0) {
-                         choice = choiceMatch.Value.Substring(2, 1);
-                    } else {
-                        connection.privmsg(CHANNEL, "You must enter a valid choice");
-
-                        //Remove bad input
-                        inputQueue.Dequeue();
-                    }
-                    if (choice != null) {
-                        defaultChar = int.Parse(choice);
-                        break;
-                    }
-                    
-                }
-            }
-            //Find character number and assign it to user class
-            defaultChar = eveCharIDs[defaultChar - 1];
-            newUser.defaultChar = defaultChar;
-            if (mySession == null) {
-                connection.notice(CHANNEL, "I appear to be missing my db, sorry");
-                return;
-            }
-            ITransaction trans = mySession.BeginTransaction();
-            mySession.Save(newUser);
-            trans.Commit();
-            connection.privmsg(CHANNEL, "Done!");
-        }
-
         //Check to see if input contains requested character
         //Return characterID of any that do.
         //Uses libeveapi
         private static int[] CheckCharacterExistence(User user, string input) {
-            UserApi api = user.apis.ElementAt(0);
-            CharacterList eveChar = EveApi.GetAccountCharacters(api.apiUserId, api.apiKeyId);
-            int counter = 0;
+            //Character userChar = mySession.CreateCriteria<Character>().Add(Restrictions.Eq("apiCharacterId", user.defaultChar)).UniqueResult<Character>();
+            HashSet<UserApi> apis = new HashSet<UserApi>(user.apis);
             int[] charIDs = new int[MAX_NO_OF_CHARS];
+            foreach (UserApi api in apis)
+            {
+                CharacterList eveChar = EveApi.GetAccountCharacters(api.apiUserId, api.apiKeyId);
+                int counter = 0;
+                
 
-            foreach (CharacterList.CharacterListItem character in eveChar.CharacterListItems) {
-                if (input.Contains(character.Name)) {
-                    charIDs[counter++] = character.CharacterId;
+                foreach (CharacterList.CharacterListItem character in eveChar.CharacterListItems)
+                {
+                    if (input.ToLower().Contains(character.Name.ToLower()))
+                    {
+                        charIDs[counter++] = character.CharacterId;
+                    }
                 }
             }
             return charIDs;
@@ -514,9 +436,10 @@ namespace IRCBot {
         //Uses libeveapi
         //Says to channel
         private static void PrintSkillTraining(User user) {
-            UserApi api = user.apis.ElementAt(0);
-            CharacterSheet character = EveApi.GetCharacterSheet(api.apiUserId, user.defaultChar, api.apiKeyId);
-            SkillInTraining skillInTrain = EveApi.GetSkillInTraining(api.apiUserId, user.defaultChar, api.apiKeyId);
+            Character eveChar = mySession.CreateCriteria<Character>().Add(Restrictions.Eq("apiCharacterId",user.defaultChar)).UniqueResult<Character>();
+            UserApi api = eveChar.api;
+            CharacterSheet character = EveApi.GetCharacterSheet(api.apiUserId, eveChar.apiCharacterId, api.apiKeyId);
+            SkillInTraining skillInTrain = EveApi.GetSkillInTraining(api.apiUserId, eveChar.apiCharacterId, api.apiKeyId);
 
             if (skillInTrain.SkillCurrentlyInTraining) {
                 DateTime dt = Convert.ToDateTime(skillInTrain.TrainingEndTime);
@@ -551,7 +474,8 @@ namespace IRCBot {
         //Uses libeveapi
         //Says to channel
         private static void PrintSkillTraining(User user, int characterID) {
-            UserApi api = user.apis.ElementAt(0);
+            Character eveChar = mySession.CreateCriteria<Character>().Add(Restrictions.Eq("apiCharacterId", characterID)).UniqueResult<Character>();
+            UserApi api = eveChar.api;
             CharacterSheet character = EveApi.GetCharacterSheet(api.apiUserId, characterID, api.apiKeyId);
             SkillInTraining skillInTrain = EveApi.GetSkillInTraining(api.apiUserId, characterID, api.apiKeyId);
 
@@ -570,7 +494,8 @@ namespace IRCBot {
         //Uses libeveapi
         //Says to channel
         private static void PrintAccountBalance(User user) {
-            UserApi api = user.apis.ElementAt(0);
+            Character eveChar = mySession.CreateCriteria<Character>().Add(Restrictions.Eq("apiCharacterId", user.defaultChar)).UniqueResult<Character>();
+            UserApi api = eveChar.api;
             CharacterSheet character = EveApi.GetCharacterSheet(api.apiUserId, user.defaultChar, api.apiKeyId);
 
             connection.privmsg(CHANNEL, String.Format("{0} has {1} isk", character.Name, character.Balance.ToString("N")));
@@ -580,31 +505,14 @@ namespace IRCBot {
         //Uses libeveapi
         //Says to channel
         private static void PrintAccountBalance(User user, int characterID) {
-            UserApi api = user.apis.ElementAt(0);
+            Character eveChar = mySession.CreateCriteria<Character>().Add(Restrictions.Eq("apiCharacterId", characterID)).UniqueResult<Character>();
+            UserApi api = eveChar.api;
             CharacterSheet character = EveApi.GetCharacterSheet(api.apiUserId, characterID, api.apiKeyId);
 
             connection.privmsg(CHANNEL, String.Format("{0} has {1} isk", character.Name, character.Balance.ToString("N")));
         }
 
-        //Print a list of characters from an account
-        //Return a list of character ID's from account
-        //Uses libeveapi
-        //Says to channel
-        public static int[] PrintCharacterList(User user) {
-            UserApi api = user.apis.ElementAt(0);
-            CharacterList eveChar = EveApi.GetAccountCharacters(api.apiUserId, api.apiKeyId);
 
-            int [] charIDList = new int[MAX_NO_OF_CHARS];
-            int counter = 1;
-            foreach (CharacterList.CharacterListItem character in eveChar.CharacterListItems){
-                Character eveCharacter = new Character(character.Name, character.CharacterId);
-                user.addCharacter(eveCharacter);
-                connection.privmsg(CHANNEL, String.Format("{0} {1}", counter.ToString(), character.Name));
-                charIDList[counter - 1] = character.CharacterId;
-                counter++;
-            }
-            return charIDList;
-        }
 
 
     }
