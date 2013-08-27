@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<objects xmlns="http://www.springframework.net">
+
+  <object id="eveResponder" type="IRCBot.Responders.Impl.EveApiResponder"/>
+  <object id="priceChecker" type="IRCBot.Responders.Impl.PriceCheckResponder"/>
+  <object id="skillLearned" type="IRCBot.Responders.Impl.SkillLearnedResponder"/>
+  
+  <object id="responderList" type="System.Collections.Generic.List&lt;IRCBot.Responders.IResponder>">
+    <constructor-arg>
+      <list>
+        <ref object="eveResponder"/>
+        <ref object="priceChecker"/>
+        <ref object="skillLearned"/>
+      </list>
+    </constructor-arg>
+  </object>
+</objects>

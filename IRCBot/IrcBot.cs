@@ -18,6 +18,9 @@ using NHibernate.Tool.hbm2ddl;
 using NHibernate.Criterion;
 using IRCBot.Responders;
 using IRCBot.Responders.Impl;
+using Spring.Context;
+using Spring.Core;
+using Spring.Context.Support;
 
 namespace IRCBot {
     class IrcConnection {
@@ -104,15 +107,12 @@ namespace IRCBot {
         public static List<SkillTree.Skill> skillList = null;
 
         public static ISession mySession;
-        public static IResponder eveApiResponder = new EveApiResponder();
-        public static IResponder priceResponder = new PriceCheckResponder();
         public static List<IResponder> botResponders = new List<IResponder>();
         
 
         static void Main(string[] args) {
-            botResponders.Add(eveApiResponder);
-            botResponders.Add(priceResponder);
-            botResponders.Add(new SkillLearnedResponder());
+            IApplicationContext context = new XmlApplicationContext("IrcBot-applicationContext.xml");
+            botResponders = (List<IResponder>)context.GetObject("responderList");
             NHibernate.Cfg.Configuration config = new NHibernate.Cfg.Configuration();
             config.Configure();
             config.AddAssembly(typeof(User).Assembly);

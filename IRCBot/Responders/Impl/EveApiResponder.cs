@@ -79,6 +79,7 @@ namespace IRCBot.Responders.Impl
                 {
                     //Doesn't match api key specifications.
                     writer.privmsg(input.target, "Doesn't look like an API to me");
+                    return;
                 }
 
                 int apiUserId = Convert.ToInt32(idMatch.Value);

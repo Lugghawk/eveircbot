@@ -26,24 +26,4 @@ namespace IRCBot.Responders
 
     }
 
-    public static class ResponderLoader {
-
-        static IResponder loadCompiled(string filename, string classname) {
-            Assembly file = Assembly.LoadFile(filename);
-            foreach (Type type in file.GetTypes()) {
-                if (type.GetInterface("IResponder") != null && type.Name.Equals(classname)) {
-                    return Activator.CreateInstance(type) as IResponder;
-                }
-            }
-            return null;
-        }
-
-        static IResponder loadSource(string filename) {
-
-
-            return null;
-        }
-
-    }
-
 }
