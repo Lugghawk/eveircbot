@@ -25,13 +25,13 @@ namespace IRCBot.Responders.Impl
 
             string [] message = input.message.Split(new char[] {' '}, 2);
             if (message.Length < 2) {
-                connection.privmsg(input.target, "More than you can afford");
+                connection.replyTo(input, "More than you can afford");
                 return;
             }
             string itemName = message[1];
             if (itemName.Length < 3)
             {
-                connection.privmsg(input.target, "Please supply at least three characters");
+                connection.replyTo(input, "Please supply at least three characters");
             }
             
             
@@ -41,7 +41,7 @@ namespace IRCBot.Responders.Impl
             {
                 foreach (InvType type in types) {
                     if (type.typeName.ToLower() == itemName.ToLower()) {
-                        connection.privmsg(input.target, "Price of " + type.typeName + " is " + string.Format("{0:n}", getMarketPrice(type.typeID)) + " on average.");
+                        connection.replyTo(input, "Price of " + type.typeName + " is " + string.Format("{0:n}", getMarketPrice(type.typeID)) + " on average.");
                         break;
                     }
                 }
@@ -49,7 +49,7 @@ namespace IRCBot.Responders.Impl
             }
             else if (types == null || types.Count == 0)
             {
-                connection.privmsg(input.target, "Can't find that item. Check spelling");
+                connection.replyTo(input, "Can't find that item. Check spelling");
                 return;
             }
             else if (types.Count > 1 && types.Count <=5)
@@ -59,10 +59,10 @@ namespace IRCBot.Responders.Impl
                     //If there is more than 1 result, concatenate them into a list and return to give an example.                 
                     itemString[i] = types.ElementAt(i).typeName;
                 }
-                connection.privmsg(input.target,"Found multiple Results: " + string.Join(", ",itemString) +".");
+                connection.replyTo(input,"Found multiple Results: " + string.Join(", ",itemString) +".");
                 return;
             } else if (types.Count > 5) {
-                connection.privmsg(input.target, String.Format("I found {0} matches for that, mind making it more specific?", types.Count));
+                connection.replyTo(input, String.Format("I found {0} matches for that, mind making it more specific?", types.Count));
             }
             
         }

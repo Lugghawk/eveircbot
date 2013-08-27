@@ -28,8 +28,10 @@ namespace IRCBot {
         static StreamReader reader;
         static StreamWriter writer;
         static TcpClient irc;
+        string nick;
         
         public IrcConnection(string server, int port, string nick) {
+            this.nick = nick;
             irc = new TcpClient(server, port);
             stream = irc.GetStream();
             Thread.Sleep(1000);
@@ -65,6 +67,14 @@ namespace IRCBot {
 
         public void privmsg(string target, string message) {
             rawWrite(String.Format("privmsg {0} :{1}", target, message));
+        }
+
+        public void replyTo(Input input, string message) {
+            if (input.target.StartsWith(nick)) {
+                privmsg(input.speaker, message);
+            } else {
+                privmsg(input.target, message);
+            }
         }
 
         public string ReadLine() {

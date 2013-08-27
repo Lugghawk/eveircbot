@@ -48,4 +48,20 @@
     <property name="marketGroupID"/>
     <property name="chanceOfDuplicating"/>
   </class>
+  <class name="SolarSystem" table="mapSolarSystems">
+    <id name="solarSystemID"/>
+    <property name="solarSystemName"/>
+    <property name="security"/>
+    <many-to-one class="Region" name="region" column="regionID"/>
+    <many-to-one class="Constellation" name="constellation" column="constellationID"/>
+  </class>
+  <class name="Region" table="mapRegions">
+    <id name="regionID"/>
+    <property name="regionName"/>
+  </class>
+  <class name="Constellation" table="mapConstellations">
+    <id name="constellationID"/>
+    <property name="constellationName"/>
+    <many-to-one class="Region" name="region" column="regionID"/>
+  </class>
 </hibernate-mapping>
