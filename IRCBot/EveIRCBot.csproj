@@ -118,7 +118,7 @@
     <Compile Include="Responders\Impl\SimpleResponder.cs" />
     <Compile Include="Responders\Impl\SkillLearnedResponder.cs" />
     <Compile Include="Responders\Input.cs" />
-    <Compile Include="Responders\IResponder.cs" />
+    <Compile Include="Responders\Responder.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Data.cs" />
   </ItemGroup>

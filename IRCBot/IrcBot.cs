@@ -203,6 +203,17 @@ namespace IRCBot {
             if (messageInput == null) {
                 return null;
             }
+            if (messageInput.message.StartsWith("!help")){
+                foreach (Responder botResponder in botResponders)
+                {
+                    foreach (string helpstring in botResponder.getHelp())
+                    {
+                        connection.replyTo(messageInput, helpstring);
+                    }
+                }
+                return null;
+            }
+
             foreach (Responder botResponder in botResponders)
             {
                 if (botResponder.willRespond(messageInput))

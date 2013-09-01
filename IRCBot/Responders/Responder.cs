@@ -14,7 +14,7 @@ namespace IRCBot.Responders
         /// This holds a Dictionary representing the triggers for this responder and their descriptions.
         /// Should be filled by the derivative classes.
         /// </summary>
-        public Dictionary<String, String> responseTriggers;
+        public Dictionary<string, string> responseTriggers;
         /// <summary>
         /// Implementer will receive the Input object and determine whether it satisfies its criteria for being the responder.
         /// </summary>
@@ -39,6 +39,16 @@ namespace IRCBot.Responders
             {
                 connection.replyTo(input, response);
             }
+        }
+
+        public List<string> getHelp()
+        {
+            List<string> helpList = new List<string>();
+            foreach (string helpstring in responseTriggers.Values)
+            {
+                helpList.Add(helpstring);
+            }
+            return helpList;
         }
 
 

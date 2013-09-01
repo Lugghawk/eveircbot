@@ -147,7 +147,7 @@ namespace IRCBot.Responders.Impl
                     systemName = input.message.Split(new char[] { ' ' }, 2)[1];
                     //If no arguments provided, this is actually out of bounds.
                 }
-                catch (IndexOutOfRangeException e)
+                catch (IndexOutOfRangeException)
                 {
                     
                     responseStrings.Add("I think you forgot something...");

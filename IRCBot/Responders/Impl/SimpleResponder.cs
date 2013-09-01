@@ -16,11 +16,6 @@ namespace IRCBot.Responders.Impl
         {
             responseTriggers.Add(trigger, response);
         }
-        public override bool willRespond(Input input)
-        {
-             return input.message.StartsWith(trigger) ? true : false;
-        }
-
         public override List<String> respond(Input input)
         {
             List<String> returnStrings = new List<String>();
