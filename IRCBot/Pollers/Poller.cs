@@ -8,12 +8,12 @@ namespace IRCBot.Pollers
 {
     abstract class Poller
     {
-
+        
         private DateTime lastRun = DateTime.Now;
         /// <summary>
         ///Implement this and it will be called to perform the poller's main action
         /// </summary>
-        public abstract void action();
+        public abstract void action(IrcConnection connection, string channel);
 
         /// <summary>
         /// Gets a timespan to determine how often the poller should run.
@@ -27,13 +27,15 @@ namespace IRCBot.Pollers
         /// <returns>A string used to identify the poller.</returns>
         public abstract string getName();
 
-        public void run()
+        
+
+        public void run(IrcConnection connection, string channel)
         {
             if (lastRun + getFrequency() >= DateTime.Now)
             {
                 try
                 {
-                    action();
+                    action(connection, channel);
                     lastRun = DateTime.Now;
                 }
                 catch
