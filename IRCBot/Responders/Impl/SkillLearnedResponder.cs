@@ -7,31 +7,31 @@ using Ircbot.Database;
 using libeveapi;
 
 namespace IRCBot.Responders.Impl {
-    class SkillLearnedResponder : IResponder {
-        bool IResponder.willRespond(Input input) {
-            if (input == null || input.message == null) {
-                return false;
-            }
-            return input.message.StartsWith("!trained");
+    class SkillLearnedResponder : Responder {
+
+        public SkillLearnedResponder()
+        {
+            responseTriggers.Add("!trained", "<skill-name> - Responds with a level that skill is trained to on your default character");
         }
 
-        void IResponder.respond(IrcConnection connection, Input input) {
+        public override List<string> respond(Input input) {
+            List<string> responseStrings = new List<string>();
             string[] message = input.message.Split(new char[] { ' ' }, 2);
             if (message.Length < 2) {
-                connection.replyTo(input, "You are lacking skill, tell me which one you want to check");
-                return;
+                responseStrings.Add("You are lacking skill, tell me which one you want to check");
+                return responseStrings;
             }
             string skillName = message[1];
             if (!IrcBot.nickDict.ContainsKey(input.speaker)) {
-                connection.replyTo(input, "Add an api key for your username first");
-                return;
+                responseStrings.Add("Add an api key for your username first");
+                return responseStrings;
             }
             User user = IrcBot.nickDict[input.speaker];
             UserApi api = user.apis.ElementAt(0);
             CharacterSheet character = EveApi.GetCharacterSheet(api.apiUserId, user.defaultChar, api.apiKeyId);
             if (!IrcBot.skillIds.ContainsKey(skillName.ToLower())) {
-                connection.replyTo(input, String.Format("I have no mapping for '{0}'", skillName));
-                return;
+                responseStrings.Add(String.Format("I have no mapping for '{0}'", skillName));
+                return responseStrings;
             }
             int target = IrcBot.skillIds[skillName.ToLower()];
             var ids = from skill in character.SkillItemList select skill.TypeId;
@@ -39,12 +39,13 @@ namespace IRCBot.Responders.Impl {
             int i = 0;
             foreach (int id in ids) {
                 if (id == target) {
-                    connection.replyTo(input, String.Format("{0} has trained {1} to level {2}", character.Name, skillName, character.SkillItemList[i].Level));
-                    return;
+                    responseStrings.Add(String.Format("{0} has trained {1} to level {2}", character.Name, skillName, character.SkillItemList[i].Level));
+                    return responseStrings;
                 }
                 i += 1;
             }
-            connection.replyTo(input, String.Format("{0} has not trained {1}", character.Name, skillName));
+            responseStrings.Add(String.Format("{0} has not trained {1}", character.Name, skillName));
+            return responseStrings;
         }
     }
 }

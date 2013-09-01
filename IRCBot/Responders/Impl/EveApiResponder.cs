@@ -11,12 +11,19 @@ using NHibernate.Criterion;
 
 namespace IRCBot.Responders.Impl
 {
-    public class EveApiResponder : IResponder
+    public class EveApiResponder : Responder
     {
         List<User> waitingOnResponse = new List<User>();
         Dictionary<User, int[]> userCharList = new Dictionary<User, int[]>();
 
-        bool IResponder.willRespond(Input input)
+        public EveApiResponder()
+        {
+            responseTriggers.Add("!api", "<keyId> <vCode> - Adds an api key to the bot under your username. Will list out characters and require another response.");
+            responseTriggers.Add("!system", "<system-name> - Returns information about a system, including constellation and region. Also returns known kills in the last hour");
+            responseTriggers.Add("!changechar", "Lists out the characters under your irc nickname, and lets you pick a new default one.");
+        }
+
+        public override bool willRespond(Input input)
         {
             if (input == null || input.message == null)
             {
@@ -41,8 +48,9 @@ namespace IRCBot.Responders.Impl
             return false;
         }
 
-        void IResponder.respond(IrcConnection writer, Input input)
+        public override List<string> respond(Input input)
         {
+            List<string> responseStrings = new List<string>();
             foreach (User user in waitingOnResponse)
             {
                 if (user.userName.Equals(input.speaker))
@@ -50,8 +58,8 @@ namespace IRCBot.Responders.Impl
                     Match choiceMatch = Regex.Match(input.message, "^[0-9]$");
                     if (!choiceMatch.Success)
                     {
-                        writer.privmsg(input.target, "That wasn't a valid character number! Try again!");
-                        return;
+                        responseStrings.Add("That wasn't a valid character number! Try again!");
+                        return responseStrings;
                     }
                     else
                     {
@@ -59,21 +67,21 @@ namespace IRCBot.Responders.Impl
                         int charId = userCharList[user][defaultChar - 1];
                         if (charId == 0)//Doesn't actually exist in that array.
                         {
-                            writer.replyTo(input, "Doesn't look like a valid char number");
-                            return;
+                            responseStrings.Add("Doesn't look like a valid char number");
+                            return responseStrings;
                         }
                         user.defaultChar = charId;
                         if (IrcBot.mySession == null)
                         {
-                            writer.replyTo(input, "I appear to be missing my DB. Sorry! Fix me pleaaase!");
-                            return;
+                            responseStrings.Add("I appear to be missing my DB. Sorry! Fix me pleaaase!");
+                            return responseStrings;
                         }
                         ITransaction trans = IrcBot.mySession.BeginTransaction();
                         IrcBot.mySession.Save(user);
                         trans.Commit();
                         waitingOnResponse.Remove(user);
-                        writer.privmsg(input.target, "Done!");
-                        break;
+                        responseStrings.Add("Done!");
+                        return responseStrings;
                     }
                 }
             }
@@ -96,8 +104,8 @@ namespace IRCBot.Responders.Impl
                 if (!(idMatch.Success || apiMatch.Success))
                 {
                     //Doesn't match api key specifications.
-                    writer.replyTo(input, "Doesn't look like an API to me");
-                    return;
+                    responseStrings.Add("Doesn't look like an API to me");
+                    return responseStrings;
                 }
 
                 int apiUserId = Convert.ToInt32(idMatch.Value);
@@ -120,12 +128,12 @@ namespace IRCBot.Responders.Impl
 
 
                 //Tell the user they've been added and ask for a default character
-                writer.replyTo(input, String.Format("New User ({0}) Added!", newUser.userName));
-                writer.replyTo(input, "Please select a default character");
+                responseStrings.Add(String.Format("New User ({0}) Added!", newUser.userName));
+                responseStrings.Add("Please select a default character");
 
                 int[] eveCharIDs = new int[IrcBot.MAX_NO_OF_CHARS];
 
-                eveCharIDs = PrintCharacterList(newUser, writer, input);
+                eveCharIDs = PrintCharacterList(newUser, responseStrings, input);
                 //Add this person to the list of people we're waiting on input from.
                 waitingOnResponse.Add(newUser);
                 userCharList.Add(newUser, eveCharIDs);
@@ -142,16 +150,16 @@ namespace IRCBot.Responders.Impl
                 catch (IndexOutOfRangeException e)
                 {
                     
-                    writer.replyTo(input, "I think you forgot something...");
-                    return;
+                    responseStrings.Add("I think you forgot something...");
+                    return responseStrings;
                 }
 
                 //(List<InvType>)IrcBot.mySession.CreateCriteria<InvType>().Add(Restrictions.InsensitiveLike("typeName", itemName+"%")).List<InvType>();
                 SolarSystem system = (SolarSystem)IrcBot.mySession.CreateCriteria<SolarSystem>().Add(Restrictions.Eq("solarSystemName", systemName)).UniqueResult();
                 if (system == null)
                 {
-                    writer.privmsg(input.target, "Cannot find system: " + systemName);
-                    return;
+                    responseStrings.Add("Cannot find system: " + systemName);
+                    return responseStrings;
                 }
                 MapKills eveMapKills = EveApi.GetMapKills();
                 MapKills.MapKillsItem kills = null;
@@ -162,17 +170,17 @@ namespace IRCBot.Responders.Impl
                         kills = map;
                     }
                 }
-                writer.privmsg(input.target, string.Format("System: {0}. Constellation: {1}. Region: {2}. Security Status: {3}", system.solarSystemName, system.constellation.constellationName, system.region.regionName, system.security));
+                responseStrings.Add(string.Format("System: {0}. Constellation: {1}. Region: {2}. Security Status: {3}", system.solarSystemName, system.constellation.constellationName, system.region.regionName, system.security));
                 if (kills != null)
                 {
-                    writer.privmsg(input.target, string.Format("Kills in the last hour: {0} ships, {1} pods", kills.ShipKills, kills.PodKills));
+                    responseStrings.Add(string.Format("Kills in the last hour: {0} ships, {1} pods", kills.ShipKills, kills.PodKills));
                 }
                 else
                 {
-                    writer.privmsg(input.target, "No known kills in the last hour");
+                    responseStrings.Add("No known kills in the last hour");
                 }
 
-
+                return responseStrings;
             }
 
             if (input.message.StartsWith("!changechar"))
@@ -186,17 +194,20 @@ namespace IRCBot.Responders.Impl
                 }
                 catch
                 {
-                    writer.replyTo(input, "Unique Result failed. Please contact admin");
+                    responseStrings.Add("Unique Result failed. Please contact admin");
+                    return responseStrings;
                 }
-                eveCharIDs = PrintCharacterList(newUser, writer, input);
+                eveCharIDs = PrintCharacterList(newUser, responseStrings, input);
                 if (! userCharList.ContainsKey(newUser))
                 {
                     userCharList.Add(newUser, eveCharIDs);
                 }
                 
                 waitingOnResponse.Add(newUser);
-
+                return responseStrings;
             }
+
+            return responseStrings;
 
         }
 
@@ -204,8 +215,7 @@ namespace IRCBot.Responders.Impl
         //Print a list of characters from an account
         //Return a list of character ID's from account
         //Uses libeveapi
-        //Says to channel
-        int[] PrintCharacterList(User user, IrcConnection writer, Input input)
+        int[] PrintCharacterList(User user, List<String> charNames, Input input)
         {
             //UserApi api = user.apis.ElementAt(0);
             int[] charIDList = new int[10];
@@ -230,7 +240,7 @@ namespace IRCBot.Responders.Impl
                         user.addCharacter(eveCharacter);
                     }
 
-                    writer.replyTo(input, String.Format("{0} {1}", counter.ToString(), character.Name));
+                    charNames.Add(String.Format("{0} {1}", counter.ToString(), character.Name));
                     charIDList[counter - 1] = character.CharacterId;
                     counter++;
                 }
