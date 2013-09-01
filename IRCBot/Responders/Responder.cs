@@ -22,7 +22,14 @@ namespace IRCBot.Responders
         /// <returns>A boolean indicating whether this responder is going to return a response.</returns>
         public virtual bool willRespond(Input input)
         {
-            return responseTriggers.ContainsKey(input.message.Split(new char[] { ' ' }, 2)[0]);
+            if (input.message != null)
+            {
+                return responseTriggers.ContainsKey(input.message.Split(new char[] { ' ' }, 2)[0]);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
