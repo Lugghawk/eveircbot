@@ -13,7 +13,7 @@ namespace IRCBot.Responders.Impl
         private string response;
         bool IResponder.willRespond(Input input)
         {
-             return input.message.StartsWith(trigger) ? true : false;
+            return input.message.StartsWith(trigger);
         }
 
         void IResponder.respond(IrcConnection connection, Input input)

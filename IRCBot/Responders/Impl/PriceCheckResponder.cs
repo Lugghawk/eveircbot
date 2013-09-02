@@ -36,8 +36,8 @@ namespace IRCBot.Responders.Impl
             
             
             List<InvType> types = (List<InvType>)IrcBot.mySession.CreateCriteria<InvType>().Add(Restrictions.InsensitiveLike("typeName", itemName+"%")).List<InvType>();
-            var names = from type in types select type.typeName;
-            if (types.Count == 1 || names.Contains(itemName))
+            var names = from type in types select type.typeName.ToLower();
+            if (types.Count == 1 || names.Contains(itemName.ToLower()))
             {
                 foreach (InvType type in types) {
                     if (type.typeName.ToLower() == itemName.ToLower()) {

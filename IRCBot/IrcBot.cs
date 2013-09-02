@@ -259,34 +259,44 @@ namespace IRCBot {
 
         public static void PerformAction(ArrayList results)
         {
-            switch ((int)(results[0])) {
-                //Balance request
-                case 2:
-                    BalanceRequest(results);
-                    break;
+            try
+            {
+                switch ((int)(results[0]))
+                {
+                    //Balance request
+                    case 2:
+                        BalanceRequest(results);
+                        break;
 
-                //Skill training request
-                case 3:
-                    SkillTrainRequest(results);
-                    break;
+                    //Skill training request
+                    case 3:
+                        SkillTrainRequest(results);
+                        break;
 
-                case 4:
-                    //Insert API status shit here
-                    break;
+                    case 4:
+                        //Insert API status shit here
+                        break;
 
-                case 5:
-                    TranquilityStatus();
-                    break;
-                case 6:
-                    WriteCharacterforUser(results);
-                    break;
-                case 7:
-                    getCharacterLocation(results);
-                    break;
-                case 8:
-                    writeEveServerTime();
-                    break;
+                    case 5:
+                        TranquilityStatus();
+                        break;
+                    case 6:
+                        WriteCharacterforUser(results);
+                        break;
+                    case 7:
+                        getCharacterLocation(results);
+                        break;
+                    case 8:
+                        writeEveServerTime();
+                        break;
+                }
             }
+            catch (WebException webex)
+            {
+                connection.privmsg(CHANNEL, "Got an error trying to access the api:" + webex.ToString());
+                return;    
+            }
+            
         }
 
         private static void writeEveServerTime()
@@ -488,8 +498,8 @@ namespace IRCBot {
             SkillInTraining skillInTrain = EveApi.GetSkillInTraining(api.apiUserId, characterID, api.apiKeyId);
 
             if (skillInTrain.SkillCurrentlyInTraining) {
-                DateTime dt = Convert.ToDateTime(skillInTrain.TrainingEndTime);
-                TimeSpan timeTillDone = dt - DateTime.Now;
+                DateTime dt = DateTime.SpecifyKind(Convert.ToDateTime(skillInTrain.TrainingEndTime), DateTimeKind.Utc);
+                TimeSpan timeTillDone = dt - skillInTrain.CurrentTime;
                 string timeTillDoneString = getTimeTillDoneString(ref timeTillDone);
                 connection.privmsg(CHANNEL, String.Format("{0} is currently training {1} to level {2} which finishes at {3}. ({4})",
                                  character.Name, getSkillById(skillInTrain.TrainingTypeId).TypeName, skillInTrain.TrainingToLevel, dt.ToString(), timeTillDoneString));

@@ -217,11 +217,14 @@ namespace IRCBot.Responders.Impl
                 {
                     Character eveCharacter = new Character(character.Name, character.CharacterId);
                     bool foundChar = false;
-                    foreach (Character userCharacter in user.characters)
+                    if (user.characters != null)
                     {
-                        if (userCharacter.apiCharacterId == eveCharacter.apiCharacterId)
+                        foreach (Character userCharacter in user.characters)
                         {
-                            foundChar = true;
+                            if (userCharacter.apiCharacterId == eveCharacter.apiCharacterId)
+                            {
+                                foundChar = true;
+                            }
                         }
                     }
                     if (!foundChar)
