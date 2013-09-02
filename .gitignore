@@ -1,3 +1,4 @@
 *.mdf
 *.ldf
 IRCBot/bin/
+IRCBot/obj/
