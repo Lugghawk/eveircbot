@@ -23,4 +23,15 @@
       </list>
     </constructor-arg>
   </object>
+  
+  <!-- Pollers -->
+  <object id="pollerList" type="System.Collections.Generic.List&lt;IRCBot.Pollers.Poller>">
+    <constructor-arg>
+      <list>
+        <ref object="skillQueuePoller"/>
+      </list>
+    </constructor-arg>
+    
+  </object>
+  <object id="skillQueuePoller" type="IRCBot.Pollers.Impl.SkillQueuePoller"/>
 </objects>

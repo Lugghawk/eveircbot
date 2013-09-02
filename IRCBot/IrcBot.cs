@@ -18,6 +18,7 @@ using NHibernate.Tool.hbm2ddl;
 using NHibernate.Criterion;
 using IRCBot.Responders;
 using IRCBot.Responders.Impl;
+using IRCBot.Pollers;
 using Spring.Context;
 using Spring.Core;
 using Spring.Context.Support;
@@ -118,6 +119,8 @@ namespace IRCBot {
 
         public static ISession mySession;
         public static List<IResponder> botResponders = new List<IResponder>();
+        public static List<Poller> pollers = new List<Poller>();
+        public static PollerManager pollerManager;
         
 
         static void Main(string[] args) {
@@ -133,6 +136,18 @@ namespace IRCBot {
             List<User> savedUsers = (List<User>)mySession.CreateCriteria<User>().List<User>();
             users.AddRange(savedUsers);
             
+            //Start pollers
+            pollers = (List<Poller>)context.GetObject("pollerList");
+            //set the channel and connection objects.
+            foreach (Poller poller in pollers)
+            {
+                poller.connection = connection;
+                poller.channel = CHANNEL;
+            }
+            pollerManager = new PollerManager(pollers);
+
+
+
             skillList = getSkillList();
             foreach (SkillTree.Skill skill in skillList) {
                 skillIds.Add(skill.TypeName.ToLower(), skill.TypeId);

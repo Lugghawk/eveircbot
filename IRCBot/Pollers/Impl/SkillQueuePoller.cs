@@ -10,7 +10,7 @@ namespace IRCBot.Pollers.Impl
 {
     class SkillQueuePoller : Poller
     {
-        private TimeSpan frequency = new TimeSpan(0, 5, 0);//5 minutes.
+        private TimeSpan frequency = new TimeSpan(0, 0, 5);//5 seconds
         private static readonly string pollerName = "Eve Skill Queue Poller";
         public override void action(IrcConnection connection, string channel)
         {

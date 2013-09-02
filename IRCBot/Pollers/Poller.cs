@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace IRCBot.Pollers
 {
     abstract class Poller
     {
-        
+        public IrcConnection connection{get;set;}
+        public string channel { get; set; }
         private DateTime lastRun = DateTime.Now;
         /// <summary>
         ///Implement this and it will be called to perform the poller's main action
@@ -27,21 +28,35 @@ namespace IRCBot.Pollers
         /// <returns>A string used to identify the poller.</returns>
         public abstract string getName();
 
-        
-
-        public void run(IrcConnection connection, string channel)
+        public Poller()
         {
-            if (lastRun + getFrequency() >= DateTime.Now)
+            
+        }
+
+        public void run()
+        {
+            while (true)
             {
-                try
+                if (connection == null || channel == null)
                 {
-                    action(connection, channel);
-                    lastRun = DateTime.Now;
+                    Console.WriteLine("Polling failed due to channel or connection not being set. Poller: " + getName());
                 }
-                catch
+                DateTime nextRun = lastRun + getFrequency();
+                DateTime now = DateTime.Now;
+                if (nextRun <= now)
                 {
-                    //Dunno
+                    try
+                    {
+                        Console.WriteLine("Attempting poll with poller " + getName());
+                        action(connection, channel);
+                        lastRun = DateTime.Now;
+                    }
+                    catch
+                    {
+                        //Dunno
+                    }
                 }
+                Thread.Sleep(1000);
             }
         }
 
