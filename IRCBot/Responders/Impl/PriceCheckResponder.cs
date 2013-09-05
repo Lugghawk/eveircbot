@@ -9,29 +9,35 @@ using NHibernate.Criterion;
 
 namespace IRCBot.Responders.Impl
 {
-    class PriceCheckResponder : IResponder
+    class PriceCheckResponder : Responder
     {
-        bool IResponder.willRespond(Input input)
+        //public override bool willRespond(Input input)
+        //{
+        //    if (input == null || input.message == null)
+        //    {
+        //        return false;
+        //    }
+        //    return input.message.StartsWith("!price");
+        //}
+
+        public PriceCheckResponder()
         {
-            if (input == null || input.message == null)
-            {
-                return false;
-            }
-            return input.message.StartsWith("!price");
+            responseTriggers.Add("!price", "<item> - Returns the average sell price of the item as per Eve Central's API");
         }
 
-        void IResponder.respond(IrcConnection connection, Input input)
+        public override List<String> respond(Input input)
         {
-
+            List<String> returnStrings = new List<String>();
             string [] message = input.message.Split(new char[] {' '}, 2);
             if (message.Length < 2) {
-                connection.replyTo(input, "More than you can afford");
-                return;
+                returnStrings.Add("More than you can afford");
+                return returnStrings;
             }
             string itemName = message[1];
             if (itemName.Length < 3)
             {
-                connection.replyTo(input, "Please supply at least three characters");
+                returnStrings.Add("Please supply at least three characters");
+                return returnStrings;
             }
             
             
@@ -41,16 +47,16 @@ namespace IRCBot.Responders.Impl
             {
                 foreach (InvType type in types) {
                     if (type.typeName.ToLower() == itemName.ToLower()) {
-                        connection.replyTo(input, "Price of " + type.typeName + " is " + string.Format("{0:n}", getMarketPrice(type.typeID)) + " on average.");
-                        break;
+                        returnStrings.Add("Price of " + type.typeName + " is " + string.Format("{0:n}", getMarketPrice(type.typeID)) + " on average.");
+                        return returnStrings;
                     }
                 }
 
             }
             else if (types == null || types.Count == 0)
             {
-                connection.replyTo(input, "Can't find that item. Check spelling");
-                return;
+                returnStrings.Add("Can't find that item. Check spelling");
+                return returnStrings;
             }
             else if (types.Count > 1 && types.Count <=5)
             {
@@ -59,11 +65,13 @@ namespace IRCBot.Responders.Impl
                     //If there is more than 1 result, concatenate them into a list and return to give an example.                 
                     itemString[i] = types.ElementAt(i).typeName;
                 }
-                connection.replyTo(input,"Found multiple Results: " + string.Join(", ",itemString) +".");
-                return;
+                returnStrings.Add("Found multiple Results: " + string.Join(", ",itemString) +".");
+                return returnStrings;
             } else if (types.Count > 5) {
-                connection.replyTo(input, String.Format("I found {0} matches for that, mind making it more specific?", types.Count));
+                returnStrings.Add(String.Format("I found {0} matches for that, mind making it more specific?", types.Count));
+                return returnStrings;
             }
+            return returnStrings;
             
         }
 

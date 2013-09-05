@@ -8,12 +8,13 @@
   
   <!-- Simple Responders -->
   <object id="pingResponder" type="IRCBot.Responders.Impl.SimpleResponder">
-    <property name="trigger" value="!ping"/>
-    <property name="response" value="Pong!"/>
+    <constructor-arg type="string"><value>!ping</value></constructor-arg>
+    <constructor-arg type="string"><value>Pong!</value></constructor-arg>
+    <constructor-arg type="string"><value>Responds with 'Pong!'</value></constructor-arg>
   </object>
   
   <!-- Responder list. Order matters!! -->
-  <object id="responderList" type="System.Collections.Generic.List&lt;IRCBot.Responders.IResponder>">
+  <object id="responderList" type="System.Collections.Generic.List&lt;IRCBot.Responders.Responder>">
     <constructor-arg>
       <list>
         <ref object="eveResponder"/>

@@ -24,7 +24,7 @@ using Spring.Core;
 using Spring.Context.Support;
 
 namespace IRCBot {
-    class IrcConnection {
+    public class IrcConnection {
         static NetworkStream stream;
         static StreamReader reader;
         static StreamWriter writer;
@@ -118,14 +118,14 @@ namespace IRCBot {
         public static List<SkillTree.Skill> skillList = null;
 
         public static ISession mySession;
-        public static List<IResponder> botResponders = new List<IResponder>();
         public static List<Poller> pollers = new List<Poller>();
         public static PollerManager pollerManager;
+        public static List<Responder> botResponders = new List<Responder>();
         
 
         static void Main(string[] args) {
             IApplicationContext context = new XmlApplicationContext("IrcBot-applicationContext.xml");
-            botResponders = (List<IResponder>)context.GetObject("responderList");
+            botResponders = (List<Responder>)context.GetObject("responderList");
             NHibernate.Cfg.Configuration config = new NHibernate.Cfg.Configuration();
             config.Configure();
             config.AddAssembly(typeof(User).Assembly);
@@ -218,13 +218,24 @@ namespace IRCBot {
             if (messageInput == null) {
                 return null;
             }
-            foreach (IResponder botResponder in botResponders)
+            if (messageInput.message.StartsWith("!help")){
+                foreach (Responder botResponder in botResponders)
+                {
+                    foreach (string helpstring in botResponder.getHelp())
+                    {
+                        connection.replyTo(messageInput, helpstring);
+                    }
+                }
+                return null;
+            }
+
+            foreach (Responder botResponder in botResponders)
             {
                 if (botResponder.willRespond(messageInput))
                 {
                     try
                     {
-                        botResponder.respond(connection, messageInput);
+                        botResponder.doResponse(connection, messageInput);
                     }
                     catch (WebException webex)
                     {

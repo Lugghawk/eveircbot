@@ -6,19 +6,21 @@ using System.Threading.Tasks;
 
 namespace IRCBot.Responders.Impl
 {
-    class SimpleResponder : IResponder
+    class SimpleResponder : Responder
     {
 
-        private string trigger;
         private string response;
-        bool IResponder.willRespond(Input input)
-        {
-            return input.message.StartsWith(trigger);
-        }
 
-        void IResponder.respond(IrcConnection connection, Input input)
+        public SimpleResponder(string trigger, string response, string description)
         {
-            connection.replyTo(input, response);
+            this.response = response;
+            responseTriggers.Add(trigger, description);
+        }
+        public override List<String> respond(Input input)
+        {
+            List<String> returnStrings = new List<String>();
+            returnStrings.Add(response);
+            return returnStrings;
         }
     }
 }

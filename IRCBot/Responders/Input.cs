@@ -9,7 +9,7 @@ namespace IRCBot.Responders
     /// <summary>
     /// This is a class which will represent an input message from IRC that the bot can observe.
     /// </summary>
-    class Input
+    public class Input
     {
         /// <summary>
         /// The nickname of the person who 

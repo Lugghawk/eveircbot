@@ -10,7 +10,7 @@ namespace IRCBot.Pollers
     {
         public IrcConnection connection{get;set;}
         public string channel { get; set; }
-        private DateTime lastRun = DateTime.Now;
+        private DateTime lastRun = DateTime.Now - new TimeSpan(24,0,0);//set previous run 1 day in the past so we do it as we start.
         /// <summary>
         ///Implement this and it will be called to perform the poller's main action
         /// </summary>
@@ -45,16 +45,20 @@ namespace IRCBot.Pollers
                 DateTime now = DateTime.Now;
                 if (nextRun <= now)
                 {
-                    try
-                    {
+                    //try
+                    //{
                         Console.WriteLine("Attempting poll with poller " + getName());
                         action(connection, channel);
                         lastRun = DateTime.Now;
-                    }
-                    catch
+                    //}
+                    /*catch
                     {
                         //Dunno
                     }
+                    finally
+                    {
+                        lastRun = DateTime.Now;
+                    }*/
                 }
                 Thread.Sleep(1000);
             }
