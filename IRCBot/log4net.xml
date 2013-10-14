@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<log4net>
+  <appender name="RollingFile" type="log4net.Appender.RollingFileAppender">
+    <file value="ircbot.log"/>
+    <appendToFile value="true"/>
+    <maximumFileSize value="1MB"/>
+    <maxSizeRollBackups value="5"/>
+
+    <layout type="log4net.Layout.PatternLayout">
+      <conversionPattern value="%date %-5level - %message%newline"/>
+    </layout>
+  </appender>
+
+  <logger name="IRCBot">
+    <level value="DEBUG"/>
+  </logger>
+
+  <appender name="Console" type="log4net.Appender.ConsoleAppender">
+    <layout type="log4net.Layout.PatternLayout">
+      <conversionPattern value="%message%newline" />
+    </layout>
+  </appender>
+
+  <appender name="IRCLog" type="log4net.Appender.RollingFileAppender">
+    <file value="irc.log"/>
+    <appendToFile value="false"/>
+    <layout type="log4net.Layout.PatternLayout">
+      <conversionPattern value="%message%newline"/>
+    </layout>
+      
+  </appender>
+
+  <logger name="IRCBot.IrcConnection">
+    <level value="INFO"/>
+    <appender-ref ref="IRCLog"/>
+    <appender-ref ref="Console"/>
+  </logger>
+  
+  <root>
+    <level value="ERROR"/>
+    <appender-ref ref="RollingFile"/>
+  </root>
+ 
+</log4net>

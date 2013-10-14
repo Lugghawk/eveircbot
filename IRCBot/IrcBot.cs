@@ -22,6 +22,8 @@ using IRCBot.Pollers;
 using Spring.Context;
 using Spring.Core;
 using Spring.Context.Support;
+using log4net;
+using log4net.Config;
 
 namespace IRCBot {
     public class IrcConnection {
@@ -30,6 +32,7 @@ namespace IRCBot {
         static StreamWriter writer;
         static TcpClient irc;
         string nick;
+        private static readonly ILog log = LogManager.GetLogger(typeof(IrcConnection));
         
         public IrcConnection(string server, int port, string nick) {
             this.nick = nick;
@@ -49,11 +52,11 @@ namespace IRCBot {
                 try {
                     writer.WriteLine(message);
                 } catch (Exception e) {
-                    Console.WriteLine(e.ToString());
-                    System.Environment.Exit(1);
+                    log.Error("Exception while writing line: " + message);
+                    //System.Environment.Exit(1);
                 }
                 if (!message.StartsWith("PING")) {
-                    Console.WriteLine("OUTBOUND :: " + message);
+                   log.Info("OUT: " + message);
                 }
             }
         }
@@ -87,9 +90,10 @@ namespace IRCBot {
                 if (parsed != null) {
                     content = parsed.toString();
                 }
-                Console.WriteLine("INCOMING :: " + content);
+                log.Info("IN: " + content);
             }
             if (line == null) {
+                log.Error("Read line was null. Exiting");
                 System.Environment.Exit(1);
             }
             return line;
@@ -121,10 +125,15 @@ namespace IRCBot {
         public static List<Poller> pollers = new List<Poller>();
         public static PollerManager pollerManager;
         public static List<Responder> botResponders = new List<Responder>();
+
+
+        private static readonly ILog log = LogManager.GetLogger(typeof(IrcBot));
         
 
         static void Main(string[] args) {
             IApplicationContext context = new XmlApplicationContext("IrcBot-applicationContext.xml");
+            XmlConfigurator.Configure(new System.IO.FileInfo("log4net.xml"));
+
             botResponders = (List<Responder>)context.GetObject("responderList");
             NHibernate.Cfg.Configuration config = new NHibernate.Cfg.Configuration();
             config.Configure();
@@ -147,44 +156,53 @@ namespace IRCBot {
             pollerManager = new PollerManager(pollers);
 
 
-
+            log.Debug("Starting Skill Enumeration");
             skillList = getSkillList();
             foreach (SkillTree.Skill skill in skillList) {
-                skillIds.Add(skill.TypeName.ToLower(), skill.TypeId);
+                try
+                {
+                    skillIds.Add(skill.TypeName.ToLower(), skill.TypeId);
+                }
+                catch (ArgumentException ae)
+                {
+                    log.Warn("Argument exception: " + ae.Message);
+                }
             }
 
             foreach (User user in users)
             {
+                log.Debug("Adding user " + user.userName);
                 nickDict.Add(user.userName, user);
             }
             string inputLine;
-            try {
-                PingSender ping = new PingSender(connection);
-                ping.setServer(SERVER);
-                ping.start();
+            while(true){
+                try {
+                    PingSender ping = new PingSender(connection);
+                    ping.setServer(SERVER);
+                    ping.start();
 
-                ActionThread actionThread = new ActionThread();
-                actionThread.start();
+                    ActionThread actionThread = new ActionThread();
+                    actionThread.start();
 
-                connection.joinChannel(CHANNEL);
+                    connection.joinChannel(CHANNEL);
 
-                connection.privmsg(CHANNEL, "Reporting for duty!");
-                ArrayList results = new ArrayList();
+                    connection.privmsg(CHANNEL, "Reporting for duty!");
+                    ArrayList results = new ArrayList();
 
-                while (true)
-                {
-                    while ((inputLine = connection.ReadLine()) != null)
+                    while (true)
                     {
-                        inputQueue.Enqueue(inputLine);
+                        while ((inputLine = connection.ReadLine()) != null)
+                        {
+                            inputQueue.Enqueue(inputLine);
+                        }
                     }
                 }
-            }
-            catch (Exception e) {
-                Console.WriteLine(e.ToString());
-                Thread.Sleep(5000);
+                catch (Exception e) {
+                    log.Error("Caught exception in operation: " + e.Message);
+                    Thread.Sleep(5000);
 
-                string[] argv = { };
-                Main(argv);
+                    string[] argv = { };
+                }
             }
         }
 

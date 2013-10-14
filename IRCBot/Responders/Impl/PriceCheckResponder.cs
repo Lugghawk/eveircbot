@@ -11,15 +11,6 @@ namespace IRCBot.Responders.Impl
 {
     class PriceCheckResponder : Responder
     {
-        //public override bool willRespond(Input input)
-        //{
-        //    if (input == null || input.message == null)
-        //    {
-        //        return false;
-        //    }
-        //    return input.message.StartsWith("!price");
-        //}
-
         public PriceCheckResponder()
         {
             responseTriggers.Add("!price", "<item> - Returns the average sell price of the item as per Eve Central's API");

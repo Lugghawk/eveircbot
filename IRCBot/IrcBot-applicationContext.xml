@@ -5,7 +5,7 @@
   <object id="eveResponder" type="IRCBot.Responders.Impl.EveApiResponder"/>
   <object id="priceChecker" type="IRCBot.Responders.Impl.PriceCheckResponder"/>
   <object id="skillLearned" type="IRCBot.Responders.Impl.SkillLearnedResponder"/>
-  
+  <object id="urlParser" type="IRCBot.Responders.Impl.URLParsingResponder"/>
   <!-- Simple Responders -->
   <object id="pingResponder" type="IRCBot.Responders.Impl.SimpleResponder">
     <constructor-arg type="string"><value>!ping</value></constructor-arg>
@@ -21,6 +21,7 @@
         <ref object="priceChecker"/>
         <ref object="skillLearned"/>
         <ref object="pingResponder"/>
+        <ref object="urlParser"/>
       </list>
     </constructor-arg>
   </object>

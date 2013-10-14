@@ -10,14 +10,13 @@ namespace IRCBot.Pollers.Impl
 {
     class SkillQueuePoller : Poller
     {
-        private TimeSpan frequency = new TimeSpan(1, 0, 0);//1 Hour
+        private TimeSpan frequency = new TimeSpan(3, 0, 0);//3 Hours
         private static readonly string pollerName = "Eve Skill Queue Poller";
         public override void action(IrcConnection connection, string channel)
         {
             IList<Character> characters = IrcBot.mySession.CreateCriteria<Character>().List<Character>();
             foreach (Character character in characters)
             {
-                //connection.privmsg(channel, "DEBUG: Polling " + character.characterName + "'s skill queue for time remaining");
                 //Get their skillQueue, and determine if time remaining is less than 24 hours.
                 SkillQueue skillQueue = null;
                 try

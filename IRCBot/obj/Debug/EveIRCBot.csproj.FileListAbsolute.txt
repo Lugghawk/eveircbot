@@ -40,3 +40,8 @@ C:\Projects\eveircbot\IRCBot\bin\Debug\NHibernate.dll
 C:\Projects\eveircbot\IRCBot\bin\Debug\Spring.Core.dll
 C:\Projects\eveircbot\IRCBot\bin\Debug\Iesi.Collections.xml
 C:\Projects\eveircbot\IRCBot\bin\Debug\NHibernate.xml
+E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\HtmlAgilityPack.dll
+E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\HtmlAgilityPack.pdb
+E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\HtmlAgilityPack.xml
+E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\log4net.dll
+E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\log4net.xml
