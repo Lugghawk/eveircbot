@@ -122,6 +122,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Responders\Impl\IndustryJobResponder.cs" />
     <Compile Include="Responders\Impl\PriceCheckResponder.cs" />
     <Compile Include="Responders\Impl\EveApiResponder.cs" />
     <Compile Include="Responders\Impl\SimpleResponder.cs" />

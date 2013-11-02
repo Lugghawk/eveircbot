@@ -27,6 +27,10 @@ namespace IRCBot.Pollers.Impl
                 {
                     continue;
                 }
+                catch (Exception)
+                {
+                    continue;
+                }
                 if (skillQueue == null)
                     continue;
                 DateTime tomorrow = DateTime.Now + new TimeSpan(24,0,0);//24 hours

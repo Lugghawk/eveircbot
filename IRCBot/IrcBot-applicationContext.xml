@@ -6,6 +6,7 @@
   <object id="priceChecker" type="IRCBot.Responders.Impl.PriceCheckResponder"/>
   <object id="skillLearned" type="IRCBot.Responders.Impl.SkillLearnedResponder"/>
   <object id="urlParser" type="IRCBot.Responders.Impl.URLParsingResponder"/>
+  <object id="corpIndy" type="IRCBot.Responders.Impl.IndustryJobResponder"/>
   <!-- Simple Responders -->
   <object id="pingResponder" type="IRCBot.Responders.Impl.SimpleResponder">
     <constructor-arg type="string"><value>!ping</value></constructor-arg>
@@ -22,6 +23,7 @@
         <ref object="skillLearned"/>
         <ref object="pingResponder"/>
         <ref object="urlParser"/>
+        <ref object="corpIndy"/>
       </list>
     </constructor-arg>
   </object>

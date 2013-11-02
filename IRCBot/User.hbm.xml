@@ -33,6 +33,10 @@
     <property name="apiUserId" not-null="true"/>
     <property name="apiKeyId" not-null="true"/>
     <many-to-one class="User" name="user_id" lazy="false"/>
+    <set name="characters" inverse="true" cascade="save-update" lazy="false">
+      <key column="api"/>
+      <one-to-many class="Character"/>
+    </set>
   </class>
   <class name="InvType" table="invTypes">
     <id name="typeID" generator="guid"/>

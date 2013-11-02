@@ -45,20 +45,11 @@ namespace IRCBot.Pollers
                 DateTime now = DateTime.Now;
                 if (nextRun <= now)
                 {
-                    //try
-                    //{
-                        Console.WriteLine("Attempting poll with poller " + getName());
-                        action(connection, channel);
-                        lastRun = DateTime.Now;
-                    //}
-                    /*catch
-                    {
-                        //Dunno
-                    }
-                    finally
-                    {
-                        lastRun = DateTime.Now;
-                    }*/
+                    
+                    Console.WriteLine("Attempting poll with poller " + getName());
+                    action(connection, channel);
+                    lastRun = DateTime.Now;
+
                 }
                 Thread.Sleep(1000);
             }

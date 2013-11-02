@@ -93,8 +93,8 @@ namespace IRCBot {
                 log.Info("IN: " + content);
             }
             if (line == null) {
-                log.Error("Read line was null. Exiting");
-                System.Environment.Exit(1);
+                log.Warn("Read line was null.");
+                //System.Environment.Exit(1);
             }
             return line;
         }
