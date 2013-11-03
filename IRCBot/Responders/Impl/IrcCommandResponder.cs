@@ -15,15 +15,15 @@ namespace IRCBot.Responders.Impl
             responseTriggers.Add("!join", "<channel> - joins a given channel");
             responseTriggers.Add("!part", "<channel> - leaves a given channel");
         }
-        public override List<string> respond(Input input)
+        public override void respond(Input input)
         {
-            if (input.message.StartsWith("!join")) return joinChannel(input);
-            if (input.message.StartsWith("!part")) return partChannel(input);
+            if (input.message.StartsWith("!join")) joinChannel(input);
+            if (input.message.StartsWith("!part")) partChannel(input);
 
-            return new List<string>();
+            return;
         }
 
-        private List<String> partChannel(Input input)
+        private void partChannel(Input input)
         {
             List<String> responseStrings = new List<String>();
             IrcConnection irc = ((IrcConnectionManager)getManager(IrcConnectionManager.MANAGER_NAME)).connection;
@@ -31,18 +31,18 @@ namespace IRCBot.Responders.Impl
             {
                 String channel = input.message.Split(' ')[1];
                 irc.partChannel(channel);
-                responseStrings.Add(String.Format("Parted {0}", channel));
+                addResponse(String.Format("Parted {0}", channel));
             }
             catch (Exception e)
             {
-                responseStrings.Add(String.Format("I couldn't part the channel due to a {0}", e.GetType().ToString()));
+                addResponse(String.Format("I couldn't part the channel due to a {0}", e.GetType().ToString()));
             }
 
-            return responseStrings;
+            return;
 
         }
 
-        private List<String> joinChannel(Input input)
+        private void joinChannel(Input input)
         {
             List<String> responseStrings = new List<String>();
             IrcConnection irc = ((IrcConnectionManager) getManager(IrcConnectionManager.MANAGER_NAME)).connection;
@@ -50,13 +50,13 @@ namespace IRCBot.Responders.Impl
             {
                 String channel = input.message.Split(' ')[1];
                 irc.joinChannel(channel);
-                responseStrings.Add(String.Format("Joined {0}",channel));
+                addResponse(String.Format("Joined {0}",channel));
             }
             catch (Exception e)
             {
-                responseStrings.Add(String.Format("I couldn't join the channel due to a {0}",e.GetType().ToString()));
+                addResponse(String.Format("I couldn't join the channel due to a {0}",e.GetType().ToString()));
             }
-            return responseStrings;
+            return;
         }
 
         public override string name

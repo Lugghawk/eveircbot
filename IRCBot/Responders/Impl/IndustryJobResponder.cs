@@ -27,23 +27,21 @@ namespace IRCBot.Responders.Impl
             responseTriggers.Add("!listjobs", "Returns a list of jobs for the corporation, seperated by Type");
         }
 
-        public override List<string> respond(Input input)
+        public override void respond(Input input)
         {
-            if (input.message.StartsWith("!corpjobs")) return getCorpJobs(input);
-            if (input.message.StartsWith("!listcorpjobs")) return getJobList(input);
-            return new List<String>();
+            if (input.message.StartsWith("!corpjobs"))  getCorpJobs(input);
+            if (input.message.StartsWith("!listcorpjobs")) getJobList(input);
+            return;
         }
 
-        private List<string> getJobList(Input input)
+        private void getJobList(Input input)
         {
-            List<String> returnStrings = new List<String>();
-            return returnStrings;
+            return;
         }
 
 
-        private List<string> getCorpJobs(Input input)
+        private void getCorpJobs(Input input)
         {
-            List<String> returnStrings = new List<String>();
             User user = null;
             try
             {
@@ -51,23 +49,23 @@ namespace IRCBot.Responders.Impl
             }
             catch (KeyNotFoundException)
             {
-                returnStrings.Add("I don't have your character listed. Please add an api call");
-                return returnStrings;
+                addResponse("I don't have your character listed. Please add an api call");
+                return;
             }
 
             Dictionary<string, List<IndustryJobList.IndustryJobListItem>> corpJobs = getCorpsJobsForUser(user);
             if (corpJobs.Count == 0)
             {
-                returnStrings.Add("Found no jobs in any known api");
-                return returnStrings;
+                addResponse("Found no jobs in any known api");
+                return;
             }
             foreach (KeyValuePair<string, List<IndustryJobList.IndustryJobListItem>> job in corpJobs)
             {
-                returnStrings.Add(String.Format("I found {0} active jobs for {1}", job.Value.Count, job.Key));
+                addResponse(String.Format("I found {0} active jobs for {1}", job.Value.Count, job.Key));
             }
 
 
-            return returnStrings;
+            return;
         }
 
 

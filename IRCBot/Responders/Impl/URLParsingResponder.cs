@@ -35,7 +35,7 @@ namespace IRCBot.Responders.Impl
             return false;
             
         }
-        public override List<string> respond(Input input)
+        public override void respond(Input input)
         {
              foreach (string word in input.message.Split(' '))
             {
@@ -52,19 +52,18 @@ namespace IRCBot.Responders.Impl
                         string title = page.DocumentNode.SelectSingleNode("//head/title").InnerText;
                         title = title.Replace("\r\n", "");
                         title = title.Replace("\t", "");
-                        List<string> returns = new List<string>(1);
                         title = HttpUtility.HtmlDecode(title);
-                        returns.Add("Link: " + title);
-                        return returns;
+                        addResponse("Link: " + title);
+                        return;
                     }
                     catch (NullReferenceException)
                     {
-                        return new List<string>(1);
+                        return;
                     }
                     //}
                 }
             }
-             return new List<string>();
+             return;
         }
 
         public override string name

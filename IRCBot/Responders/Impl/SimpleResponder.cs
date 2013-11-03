@@ -16,11 +16,11 @@ namespace IRCBot.Responders.Impl
             this.response = response;
             responseTriggers.Add(trigger, description);
         }
-        public override List<String> respond(Input input)
+        public override void respond(Input input)
         {
-            List<String> returnStrings = new List<String>();
-            returnStrings.Add(response);
-            return returnStrings;
+            
+            addResponse(response);
+            return;
         }
 
         public override string name

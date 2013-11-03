@@ -43,13 +43,20 @@ namespace IRCBot.Responders
         /// </summary>
         /// <param name="connection">The stream which the response will be given on. Use Streamwriter.WriteLine() to send a line to IRC.</param>
         /// <param name="message">The input which to respond against.</param>
-        public abstract List<String> respond(Input input);
+        public abstract void respond(Input input);
+
+        private List<String> responses = new List<String>();
+        protected void addResponse(String response)
+        {
+            responses.Add(response);
+        }
 
 
         public void doResponse(Dictionary<String, AbstractManager> managers, Input input)
         {
+            responses = new List<String>();
             this.managers = managers;
-            List<String> responses = respond(input);
+            respond(input);
             foreach (String response in responses)
             {
                ((IrcConnectionManager) IrcBot.getManager(IrcConnectionManager.MANAGER_NAME)).connection.replyTo(input, response);               

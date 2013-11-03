@@ -24,19 +24,18 @@ namespace IRCBot.Responders.Impl
             responseTriggers.Add("!price", "<item> - Returns the average sell price of the item as per Eve Central's API");
         }
 
-        public override List<String> respond(Input input)
+        public override void respond(Input input)
         {
-            List<String> returnStrings = new List<String>();
             string [] message = input.message.Split(new char[] {' '}, 2);
             if (message.Length < 2) {
-                returnStrings.Add("More than you can afford");
-                return returnStrings;
+                addResponse("More than you can afford");
+               return;
             }
             string itemName = message[1];
             if (itemName.Length < 3)
             {
-                returnStrings.Add("Please supply at least three characters");
-                return returnStrings;
+                addResponse("Please supply at least three characters");
+               return;
             }
             
             
@@ -46,16 +45,16 @@ namespace IRCBot.Responders.Impl
             {
                 foreach (InvType type in types) {
                     if (type.typeName.ToLower() == itemName.ToLower()) {
-                        returnStrings.Add("Price of " + type.typeName + " is " + string.Format("{0:n}", getMarketPrice(type.typeID)) + " on average.");
-                        return returnStrings;
+                        addResponse("Price of " + type.typeName + " is " + string.Format("{0:n}", getMarketPrice(type.typeID)) + " on average.");
+                       return;
                     }
                 }
 
             }
             else if (types == null || types.Count == 0)
             {
-                returnStrings.Add("Can't find that item. Check spelling");
-                return returnStrings;
+                addResponse("Can't find that item. Check spelling");
+               return;
             }
             else if (types.Count > 1 && types.Count <=5)
             {
@@ -64,13 +63,13 @@ namespace IRCBot.Responders.Impl
                     //If there is more than 1 result, concatenate them into a list and return to give an example.                 
                     itemString[i] = types.ElementAt(i).typeName;
                 }
-                returnStrings.Add("Found multiple Results: " + string.Join(", ",itemString) +".");
-                return returnStrings;
+                addResponse("Found multiple Results: " + string.Join(", ",itemString) +".");
+               return;
             } else if (types.Count > 5) {
-                returnStrings.Add(String.Format("I found {0} matches for that, mind making it more specific?", types.Count));
-                return returnStrings;
+                addResponse(String.Format("I found {0} matches for that, mind making it more specific?", types.Count));
+               return;
             }
-            return returnStrings;
+           return;
             
         }
 
