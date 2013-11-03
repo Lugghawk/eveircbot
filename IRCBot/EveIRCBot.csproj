@@ -107,6 +107,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>IrcBotDatabaseDataSet.xsd</DependentUpon>
     </Compile>
+    <Compile Include="Managers\AbstractManager.cs" />
+    <Compile Include="Managers\Impl\IrcConnectionManager.cs" />
+    <Compile Include="Managers\ManagerNotFoundException.cs" />
     <Compile Include="PingSender.cs" />
     <Compile Include="Pollers\Impl\SkillQueuePoller.cs" />
     <Compile Include="Pollers\Poller.cs" />
@@ -123,6 +126,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Responders\Impl\IndustryJobResponder.cs" />
+    <Compile Include="Responders\Impl\IrcCommandResponder.cs" />
     <Compile Include="Responders\Impl\PriceCheckResponder.cs" />
     <Compile Include="Responders\Impl\EveApiResponder.cs" />
     <Compile Include="Responders\Impl\SimpleResponder.cs" />

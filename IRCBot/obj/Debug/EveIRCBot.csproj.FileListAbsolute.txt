@@ -45,3 +45,7 @@ E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\HtmlAgilityPack.pdb
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\HtmlAgilityPack.xml
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\log4net.dll
 E:\Projects\Workspace\ircevebot\IrcBot\IRCBot\bin\Debug\log4net.xml
+C:\Projects\eveircbot\IRCBot\bin\Debug\log4net.xml
+C:\Projects\eveircbot\IRCBot\bin\Debug\HtmlAgilityPack.dll
+C:\Projects\eveircbot\IRCBot\bin\Debug\log4net.dll
+C:\Projects\eveircbot\IRCBot\bin\Debug\HtmlAgilityPack.xml

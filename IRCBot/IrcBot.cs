@@ -24,6 +24,8 @@ using Spring.Core;
 using Spring.Context.Support;
 using log4net;
 using log4net.Config;
+using IRCBot.Managers;
+using IRCBot.Managers.Impl;
 
 namespace IRCBot {
     public class IrcConnection {
@@ -33,8 +35,14 @@ namespace IRCBot {
         static TcpClient irc;
         string nick;
         private static readonly ILog log = LogManager.GetLogger(typeof(IrcConnection));
-        
+
+        public readonly string server;
+        public readonly int port;
+
+      
         public IrcConnection(string server, int port, string nick) {
+            this.server = server;
+            this.port = port;
             this.nick = nick;
             irc = new TcpClient(server, port);
             stream = irc.GetStream();
@@ -52,7 +60,7 @@ namespace IRCBot {
                 try {
                     writer.WriteLine(message);
                 } catch (Exception e) {
-                    log.Error("Exception while writing line: " + message);
+                    log.Error(String.Format("Exception [{0}] while writing line: {1}",e.GetType().ToString(),message));
                     //System.Environment.Exit(1);
                 }
                 if (!message.StartsWith("PING")) {
@@ -63,6 +71,11 @@ namespace IRCBot {
 
         public void joinChannel(string channel) {
             rawWrite(String.Format("JOIN {0}", channel));
+        }
+
+        public void partChannel(string channel)
+        {
+            rawWrite(String.Format("PART {0}", channel));
         }
 
         public void notice(string target, string message) {
@@ -101,13 +114,10 @@ namespace IRCBot {
     }
     
     class IrcBot {
-        private static string SERVER = ConfigurationManager.AppSettings["irc.server"];
-        private static int PORT = Convert.ToInt32(ConfigurationManager.AppSettings["irc.port"]);
-        private static string NICK = ConfigurationManager.AppSettings["irc.nick"];
-        private static string CHANNEL = ConfigurationManager.AppSettings["irc.channel"];
+        private static string CHANNEL;
         public static int MAX_NO_OF_CHARS = 10;
 
-        public static IrcConnection connection = new IrcConnection(SERVER, PORT, NICK);
+        public static IrcConnection connection;
 
         //global input queue from IRC
         public static Queue<string> inputQueue = new Queue<string>();
@@ -125,6 +135,7 @@ namespace IRCBot {
         public static List<Poller> pollers = new List<Poller>();
         public static PollerManager pollerManager;
         public static List<Responder> botResponders = new List<Responder>();
+        public static Dictionary<String, AbstractManager> managers = new Dictionary<String, AbstractManager>();
 
 
         private static readonly ILog log = LogManager.GetLogger(typeof(IrcBot));
@@ -135,6 +146,11 @@ namespace IRCBot {
             XmlConfigurator.Configure(new System.IO.FileInfo("log4net.xml"));
 
             botResponders = (List<Responder>)context.GetObject("responderList");
+            pollers = (List<Poller>)context.GetObject("pollerList");
+            managers = (Dictionary<String,AbstractManager>)context.GetObject("managers");
+            connection = ((IrcConnectionManager) getManager(IrcConnectionManager.MANAGER_NAME)).connection;
+            CHANNEL = (String)context.GetObject("IrcChannel");
+
             NHibernate.Cfg.Configuration config = new NHibernate.Cfg.Configuration();
             config.Configure();
             config.AddAssembly(typeof(User).Assembly);
@@ -146,7 +162,7 @@ namespace IRCBot {
             users.AddRange(savedUsers);
             
             //Start pollers
-            pollers = (List<Poller>)context.GetObject("pollerList");
+            
             //set the channel and connection objects.
             foreach (Poller poller in pollers)
             {
@@ -178,7 +194,7 @@ namespace IRCBot {
             while(true){
                 try {
                     PingSender ping = new PingSender(connection);
-                    ping.setServer(SERVER);
+                    ping.setServer(connection.server);
                     ping.start();
 
                     ActionThread actionThread = new ActionThread();
@@ -203,6 +219,18 @@ namespace IRCBot {
 
                     string[] argv = { };
                 }
+            }
+        }
+
+        public static AbstractManager getManager(String managerName)
+        {
+            if (managers.ContainsKey(managerName))
+            {
+                return managers[managerName];
+            }
+            else
+            {
+                throw new ManagerNotFoundException(managerName);
             }
         }
 
@@ -253,7 +281,7 @@ namespace IRCBot {
                 {
                     try
                     {
-                        botResponder.doResponse(connection, messageInput);
+                        botResponder.doResponse(managers, messageInput);
                     }
                     catch (WebException webex)
                     {

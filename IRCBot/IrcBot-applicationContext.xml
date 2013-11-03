@@ -7,6 +7,7 @@
   <object id="skillLearned" type="IRCBot.Responders.Impl.SkillLearnedResponder"/>
   <object id="urlParser" type="IRCBot.Responders.Impl.URLParsingResponder"/>
   <object id="corpIndy" type="IRCBot.Responders.Impl.IndustryJobResponder"/>
+  <object id="ircCommand" type="IRCBot.Responders.Impl.IrcCommandResponder"/>
   <!-- Simple Responders -->
   <object id="pingResponder" type="IRCBot.Responders.Impl.SimpleResponder">
     <constructor-arg type="string"><value>!ping</value></constructor-arg>
@@ -24,6 +25,7 @@
         <ref object="pingResponder"/>
         <ref object="urlParser"/>
         <ref object="corpIndy"/>
+        <ref object="ircCommand"/>
       </list>
     </constructor-arg>
   </object>
@@ -38,4 +40,30 @@
     
   </object>
   <object id="skillQueuePoller" type="IRCBot.Pollers.Impl.SkillQueuePoller"/>
+
+  <!-- IrcConnection -->
+  <object id="ircConnection" type="IRCBot.IrcConnection">
+    <constructor-arg type="string"><value>irc.freenode.net</value></constructor-arg>
+    <constructor-arg type="int"><value>6667</value></constructor-arg>
+    <constructor-arg type="string"><value>hogevetest</value></constructor-arg>
+  </object>
+
+  <object id="ircManager" type="IRCBot.Managers.Impl.IrcConnectionManager">
+    <property name="connection" ref="ircConnection"/>
+  </object>
+
+  <object id="managers" type="System.Collections.Generic.Dictionary&lt;string, IRCBot.Managers.AbstractManager>">
+    <constructor-arg>
+      <dictionary key-type="string" value-type="IRCBot.Managers.AbstractManager">
+        <entry key="IrcConnection" value-ref="ircManager"/>
+      </dictionary>
+    </constructor-arg>
+  </object>
+
+  <object id="IrcChannel" type="System.String" factory-method="Copy">
+    <constructor-arg>
+      <value>#acidtest</value>
+    </constructor-arg>
+  </object>
+
 </objects>

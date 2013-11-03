@@ -57,7 +57,7 @@ namespace IRCBot.Responders.Impl
                         returns.Add("Link: " + title);
                         return returns;
                     }
-                    catch (NullReferenceException nre)
+                    catch (NullReferenceException)
                     {
                         return new List<string>(1);
                     }

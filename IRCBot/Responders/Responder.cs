@@ -5,11 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
+using IRCBot.Managers;
+using IRCBot.Managers.Impl;
 
 namespace IRCBot.Responders
 {
     public abstract class Responder
     {
+        /// <summary>
+        /// A list of managers that each responder can attempt to access.
+        /// </summary>
+        public Dictionary<String, AbstractManager> managers { get; private set; }
         /// <summary>
         /// This holds a Dictionary representing the triggers for this responder and their descriptions.
         /// Should be filled by the derivative classes.
@@ -39,14 +45,21 @@ namespace IRCBot.Responders
         /// <param name="message">The input which to respond against.</param>
         public abstract List<String> respond(Input input);
 
-        public void doResponse(IrcConnection connection, Input input)
+
+        public void doResponse(Dictionary<String, AbstractManager> managers, Input input)
         {
+            this.managers = managers;
             List<String> responses = respond(input);
             foreach (String response in responses)
             {
-                connection.replyTo(input, response);
+               ((IrcConnectionManager) IrcBot.getManager(IrcConnectionManager.MANAGER_NAME)).connection.replyTo(input, response);               
             }
         }
+
+        protected AbstractManager getManager(String managerName){
+            return IrcBot.getManager(managerName);
+        }
+        
 
         public List<string> getHelp()
         {
