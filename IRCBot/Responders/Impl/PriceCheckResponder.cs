@@ -26,27 +26,35 @@ namespace IRCBot.Responders.Impl
 
         public override void respond(Input input)
         {
-            string [] message = input.message.Split(new char[] {' '}, 2);
-            if (message.Length < 2) {
+            getPrice(input);
+        }
+
+        private void getPrice(Input input)
+        {
+            string[] message = input.message.Split(new char[] { ' ' }, 2);
+            if (message.Length < 2)
+            {
                 addResponse("More than you can afford");
-               return;
+                return;
             }
             string itemName = message[1];
             if (itemName.Length < 3)
             {
                 addResponse("Please supply at least three characters");
-               return;
+                return;
             }
-            
-            
-            List<InvType> types = (List<InvType>)IrcBot.mySession.CreateCriteria<InvType>().Add(Restrictions.InsensitiveLike("typeName", itemName+"%")).List<InvType>();
+
+
+            List<InvType> types = (List<InvType>)IrcBot.mySession.CreateCriteria<InvType>().Add(Restrictions.InsensitiveLike("typeName", itemName + "%")).List<InvType>();
             var names = from type in types select type.typeName.ToLower();
             if (types.Count == 1 || names.Contains(itemName.ToLower()))
             {
-                foreach (InvType type in types) {
-                    if (type.typeName.ToLower() == itemName.ToLower()) {
+                foreach (InvType type in types)
+                {
+                    if (type.typeName.ToLower() == itemName.ToLower())
+                    {
                         addResponse("Price of " + type.typeName + " is " + string.Format("{0:n}", getMarketPrice(type.typeID)) + " on average.");
-                       return;
+                        return;
                     }
                 }
 
@@ -54,23 +62,25 @@ namespace IRCBot.Responders.Impl
             else if (types == null || types.Count == 0)
             {
                 addResponse("Can't find that item. Check spelling");
-               return;
+                return;
             }
-            else if (types.Count > 1 && types.Count <=5)
+            else if (types.Count > 1 && types.Count <= 5)
             {
-                string[] itemString  = new string[types.Count];
-                for (int i=0; i < types.Count; i++){
+                string[] itemString = new string[types.Count];
+                for (int i = 0; i < types.Count; i++)
+                {
                     //If there is more than 1 result, concatenate them into a list and return to give an example.                 
                     itemString[i] = types.ElementAt(i).typeName;
                 }
-                addResponse("Found multiple Results: " + string.Join(", ",itemString) +".");
-               return;
-            } else if (types.Count > 5) {
-                addResponse(String.Format("I found {0} matches for that, mind making it more specific?", types.Count));
-               return;
+                addResponse("Found multiple Results: " + string.Join(", ", itemString) + ".");
+                return;
             }
-           return;
-            
+            else if (types.Count > 5)
+            {
+                addResponse(String.Format("I found {0} matches for that, mind making it more specific?", types.Count));
+                return;
+            }
+            return;
         }
 
         public double getMarketPrice(int typeID)

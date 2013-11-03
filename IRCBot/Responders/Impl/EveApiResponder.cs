@@ -96,127 +96,142 @@ namespace IRCBot.Responders.Impl
 
             if (input.message.StartsWith("!api"))
             {
-                if (IrcBot.nickDict.ContainsKey(input.speaker))
-                {
-                    //writer.replyTo(input, "That user already exists");
-                    //return;
-                }
-
-                //Regex for api key
-                Regex apiRegex = new Regex("[0-9a-zA-Z]{64}");
-                Match apiMatch = apiRegex.Match(input.message);
-                //Regex for user ID
-                Regex idRegex = new Regex("[0-9]{6,}");
-                Match idMatch = idRegex.Match(input.message);
-
-                if (!(idMatch.Success || apiMatch.Success))
-                {
-                    //Doesn't match api key specifications.
-                    addResponse("Doesn't look like an API to me");
-                    return;
-                }
-
-                int apiUserId = Convert.ToInt32(idMatch.Value);
-                string apiKeyId = apiMatch.Value;
-                User newUser = null;
-                newUser = (User)IrcBot.mySession.CreateCriteria<User>().Add(Restrictions.Eq("userName", input.speaker)).UniqueResult();
-
-                if (newUser == null)
-                {
-                    newUser = new User(input.speaker);
-                    IrcBot.nickDict.Add(newUser.userName, newUser);
-                }
-
-                
-                UserApi api = new UserApi(apiUserId, apiKeyId);
-                newUser.addApi(api);
-
-                //since user doesn't exist, add him to user dict.x
-
-
-
-                //Tell the user they've been added and ask for a default character
-                addResponse(String.Format("New User ({0}) Added!", newUser.userName));
-                addResponse("Please select a default character");
-
-                int[] eveCharIDs = new int[IrcBot.MAX_NO_OF_CHARS];
-
-                eveCharIDs = PrintCharacterList(newUser, input);
-                //Add this person to the list of people we're waiting on input from.
-                waitingOnResponse.Add(newUser);
-                userCharList.Add(newUser, eveCharIDs);
+                addApi(input);
             }
 
             if (input.message.StartsWith("!system"))
             {
-                string systemName = null;
-                try
-                {
-                    systemName = input.message.Split(new char[] { ' ' }, 2)[1];
-                    //If no arguments provided, this is actually out of bounds.
-                }
-                catch (IndexOutOfRangeException)
-                {
-                    
-                    addResponse("I think you forgot something...");
-                    return;
-                }
-
-                //(List<InvType>)IrcBot.mySession.CreateCriteria<InvType>().Add(Restrictions.InsensitiveLike("typeName", itemName+"%")).List<InvType>();
-                SolarSystem system = (SolarSystem)IrcBot.mySession.CreateCriteria<SolarSystem>().Add(Restrictions.Eq("solarSystemName", systemName)).UniqueResult();
-                if (system == null)
-                {
-                    addResponse("Cannot find system: " + systemName);
-                    return;
-                }
-                MapKills eveMapKills = EveApi.GetMapKills();
-                MapKills.MapKillsItem kills = null;
-                foreach (MapKills.MapKillsItem map in eveMapKills.MapSystemKills)
-                {
-                    if (map.SolarSystemId == system.solarSystemID)
-                    {
-                        kills = map;
-                    }
-                }
-                addResponse(string.Format("System: {0}. Constellation: {1}. Region: {2}. Security Status: {3}", system.solarSystemName, system.constellation.constellationName, system.region.regionName, system.security));
-                if (kills != null)
-                {
-                    addResponse(string.Format("Kills in the last hour: {0} ships, {1} pods", kills.ShipKills, kills.PodKills));
-                }
-                else
-                {
-                    addResponse("No known kills in the last hour");
-                }
-
-                return;
+                getSystem(input);
             }
 
             if (input.message.StartsWith("!changechar"))
             {
-                int[] eveCharIDs = new int[IrcBot.MAX_NO_OF_CHARS];
-                
-                User newUser = null;
-                try
-                {
-                    newUser = (User)IrcBot.mySession.CreateCriteria<User>().Add(Restrictions.Eq("userName", input.speaker)).UniqueResult();
-                }
-                catch
-                {
-                    addResponse("Unique Result failed. Please contact admin");
-                    return;
-                }
-                eveCharIDs = PrintCharacterList(newUser, input);
-                if (! userCharList.ContainsKey(newUser))
-                {
-                    userCharList.Add(newUser, eveCharIDs);
-                }
-                
-                waitingOnResponse.Add(newUser);
-                return;
+                changeChar(input);
             }
 
             return;
 
+        }
+
+        private void changeChar(Input input)
+        {
+            int[] eveCharIDs = new int[IrcBot.MAX_NO_OF_CHARS];
+
+            User newUser = null;
+            try
+            {
+                newUser = (User)IrcBot.mySession.CreateCriteria<User>().Add(Restrictions.Eq("userName", input.speaker)).UniqueResult();
+            }
+            catch
+            {
+                addResponse("Unique Result failed. Please contact admin");
+                return;
+            }
+            eveCharIDs = PrintCharacterList(newUser, input);
+            if (!userCharList.ContainsKey(newUser))
+            {
+                userCharList.Add(newUser, eveCharIDs);
+            }
+
+            waitingOnResponse.Add(newUser);
+            return;
+        }
+
+        private void getSystem(Input input)
+        {
+            string systemName = null;
+            try
+            {
+                systemName = input.message.Split(new char[] { ' ' }, 2)[1];
+                //If no arguments provided, this is actually out of bounds.
+            }
+            catch (IndexOutOfRangeException)
+            {
+
+                addResponse("I think you forgot something...");
+                return;
+            }
+
+            //(List<InvType>)IrcBot.mySession.CreateCriteria<InvType>().Add(Restrictions.InsensitiveLike("typeName", itemName+"%")).List<InvType>();
+            SolarSystem system = (SolarSystem)IrcBot.mySession.CreateCriteria<SolarSystem>().Add(Restrictions.Eq("solarSystemName", systemName)).UniqueResult();
+            if (system == null)
+            {
+                addResponse("Cannot find system: " + systemName);
+                return;
+            }
+            MapKills eveMapKills = EveApi.GetMapKills();
+            MapKills.MapKillsItem kills = null;
+            foreach (MapKills.MapKillsItem map in eveMapKills.MapSystemKills)
+            {
+                if (map.SolarSystemId == system.solarSystemID)
+                {
+                    kills = map;
+                }
+            }
+            addResponse(string.Format("System: {0}. Constellation: {1}. Region: {2}. Security Status: {3}", system.solarSystemName, system.constellation.constellationName, system.region.regionName, system.security));
+            if (kills != null)
+            {
+                addResponse(string.Format("Kills in the last hour: {0} ships, {1} pods", kills.ShipKills, kills.PodKills));
+            }
+            else
+            {
+                addResponse("No known kills in the last hour");
+            }
+
+            return;
+        }
+
+        private void addApi(Input input)
+        {
+            if (IrcBot.nickDict.ContainsKey(input.speaker))
+            {
+                //writer.replyTo(input, "That user already exists");
+                //return;
+            }
+
+            //Regex for api key
+            Regex apiRegex = new Regex("[0-9a-zA-Z]{64}");
+            Match apiMatch = apiRegex.Match(input.message);
+            //Regex for user ID
+            Regex idRegex = new Regex("[0-9]{6,}");
+            Match idMatch = idRegex.Match(input.message);
+
+            if (!(idMatch.Success || apiMatch.Success))
+            {
+                //Doesn't match api key specifications.
+                addResponse("Doesn't look like an API to me");
+                return;
+            }
+
+            int apiUserId = Convert.ToInt32(idMatch.Value);
+            string apiKeyId = apiMatch.Value;
+            User newUser = null;
+            newUser = (User)IrcBot.mySession.CreateCriteria<User>().Add(Restrictions.Eq("userName", input.speaker)).UniqueResult();
+
+            if (newUser == null)
+            {
+                newUser = new User(input.speaker);
+                IrcBot.nickDict.Add(newUser.userName, newUser);
+            }
+
+
+            UserApi api = new UserApi(apiUserId, apiKeyId);
+            newUser.addApi(api);
+
+            //since user doesn't exist, add him to user dict.x
+
+
+
+            //Tell the user they've been added and ask for a default character
+            addResponse(String.Format("New User ({0}) Added!", newUser.userName));
+            addResponse("Please select a default character");
+
+            int[] eveCharIDs = new int[IrcBot.MAX_NO_OF_CHARS];
+
+            eveCharIDs = PrintCharacterList(newUser, input);
+            //Add this person to the list of people we're waiting on input from.
+            waitingOnResponse.Add(newUser);
+            userCharList.Add(newUser, eveCharIDs);
         }
 
         
