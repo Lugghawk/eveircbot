@@ -22,5 +22,11 @@ namespace IRCBot.Responders.Impl
             returnStrings.Add(response);
             return returnStrings;
         }
+
+        public override string name
+        {
+            get { return name; }
+        }
+
     }
 }

@@ -13,6 +13,14 @@ namespace IRCBot.Responders.Impl
 {
     public class EveApiResponder : Responder
     {
+
+        private const String RESPONDER_NAME = "EveApiResponder";
+
+        public override string name
+        {
+            get { return RESPONDER_NAME; }
+        }
+
         List<User> waitingOnResponse = new List<User>();
         Dictionary<User, int[]> userCharList = new Dictionary<User, int[]>();
 

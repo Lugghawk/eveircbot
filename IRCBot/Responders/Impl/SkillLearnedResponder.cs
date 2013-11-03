@@ -9,6 +9,13 @@ using libeveapi;
 namespace IRCBot.Responders.Impl {
     class SkillLearnedResponder : Responder {
 
+        private const String RESPONDER_NAME = "SkillLearnedResponder";
+
+        public override string name
+        {
+            get { return RESPONDER_NAME; }
+        }
+
         public SkillLearnedResponder()
         {
             responseTriggers.Add("!trained", "<skill-name> - Responds with a level that skill is trained to on your default character");
@@ -47,5 +54,8 @@ namespace IRCBot.Responders.Impl {
             responseStrings.Add(String.Format("{0} has not trained {1}", character.Name, skillName));
             return responseStrings;
         }
+
+        
+        
     }
 }

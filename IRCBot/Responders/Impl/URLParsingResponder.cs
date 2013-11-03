@@ -12,6 +12,9 @@ namespace IRCBot.Responders.Impl
 {
     class URLParsingResponder : Responder
     {
+
+        private const String NAME = "URLParsingResponder";
+
         string urlRegex = "http(s)?://";
         public URLParsingResponder()
         {
@@ -62,6 +65,11 @@ namespace IRCBot.Responders.Impl
                 }
             }
              return new List<string>();
+        }
+
+        public override string name
+        {
+            get { return NAME; }
         }
     }
 }

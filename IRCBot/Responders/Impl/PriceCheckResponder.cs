@@ -11,6 +11,14 @@ namespace IRCBot.Responders.Impl
 {
     class PriceCheckResponder : Responder
     {
+
+        private const String RESPONDER_NAME = "PriceCheckResponder";
+
+        public override string name
+        {
+            get { return RESPONDER_NAME; }
+        }
+            
         public PriceCheckResponder()
         {
             responseTriggers.Add("!price", "<item> - Returns the average sell price of the item as per Eve Central's API");

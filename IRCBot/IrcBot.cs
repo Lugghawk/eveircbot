@@ -257,8 +257,13 @@ namespace IRCBot {
                     }
                     catch (WebException webex)
                     {
-                        connection.replyTo(messageInput, "Got a 403 error trying to reach: "+webex.Response.ResponseUri);
+                        connection.replyTo(messageInput, "Got a 403 error trying to reach: " + webex.Response.ResponseUri);
                         return null;
+                    }
+                    catch (Exception e)
+                    {
+                        connection.replyTo(messageInput, "Got an exception trying to do that: " + e.GetType().ToString() + ". Please check log for more info.");
+                        log.Error(String.Format("Got Exception trying to respond with [{0}]. Exception was: {1}",botResponder.name,e));
                     }
                     return null;
                 }

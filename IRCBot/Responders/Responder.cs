@@ -58,7 +58,12 @@ namespace IRCBot.Responders
             return helpList;
         }
 
-
+        /// <summary>
+        /// Returns the name of the responder so it can be identified by someone using the interfaces to access a list of active responders.
+        /// </summary>
+        /// <returns>String indicateing the name of this responder.</returns>
+        public abstract String name { get; }
+        
 
        
     }
